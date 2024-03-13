@@ -9,6 +9,8 @@ export type RoomQuery = {
 };
 
 export type SortOrder = 'asc' | 'desc';
+//  SortOrder = 'asc' | 'desc';
+ export type SizeOrder = 'lowToHigh' | 'highToLow' ;
 // export type MaxGuestsType = number | null;
 
 export type LanguageKey = 'en' | 'ar';

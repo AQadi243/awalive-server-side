@@ -6,7 +6,7 @@ import { roomService } from './room.service';
 import httpStatus from 'http-status';
 import AppError from '../../Error/errors/AppError';
 import sendResponse from '../../utils/sendResponse';
-import { LanguageKey, SortOrder } from './room.interface';
+import { LanguageKey, SizeOrder, SortOrder } from './room.interface';
 
 const createRoom = catchAsync(async (req: Request, res: Response) => {
   
@@ -161,8 +161,13 @@ const checkInDate  = req.query.checkInDate as string ;
 const checkOutDate   =  req.query.checkOutDate as string ;
 const sortOrder = req.query.sortOrder as SortOrder;
 const maxGuestsParam = req.query.maxGuests;
-const categoryId = req.query.categoryId as string;
+// const categoryId = req.query.categoryId as string;
+const sizeOrder = req.query.sizeOrder as SizeOrder;
 const maxGuests  =  parseInt(maxGuestsParam as string, 10);
+
+// if (req.query.sizeOrder === 'lowToHigh' || req.query.sizeOrder === 'highToLow') {
+//   sizeOrder = req.query.sizeOrder;
+// }
 
   if (sortOrder && sortOrder !== 'asc' && sortOrder !== 'desc') {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid sortOrder parameter. Must be 'asc' or 'desc'.");
@@ -170,7 +175,7 @@ const maxGuests  =  parseInt(maxGuestsParam as string, 10);
   }
 
 
-  const result = await roomService.checkAllRoomAvailability( checkInDate,checkOutDate,sortOrder, language, maxGuests, categoryId );
+  const result = await roomService.checkAllRoomAvailability( checkInDate,checkOutDate,sortOrder, language, maxGuests, sizeOrder );
   if (!result || result.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, 'No available room found');
   } else {

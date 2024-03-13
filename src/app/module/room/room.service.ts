@@ -304,15 +304,16 @@ const deleteRoomById = async (roomId: string) => {
 const checkAllRoomAvailability = async (
   checkInDateStr: string,
   checkOutDateStr: string,
-  sortOrder: SortOrder = 'asc',
+  sortOrder:  'asc' | "desc",
   language: LanguageKey,
   maxGuests: number,
-  categoryId: string
+  sizeOrder: 'lowToHigh' | 'highToLow' // Added this parameter
+  // categoryId: string
 ) => {
 
 
    // Build a condition object for category
-   const categoryCondition = categoryId ? { type: new mongoose.Types.ObjectId(categoryId) } : {};
+  //  const categoryCondition = categoryId ? { type: new mongoose.Types.ObjectId(categoryId) } : {};
   
 
   const availableRooms = await RoomModel.aggregate([
@@ -374,7 +375,7 @@ const checkAllRoomAvailability = async (
   const roomIds = availableRooms.map(room => room._id);
 
   // Step 2: Retrieve full room details for the available rooms
-  const roomsDetails = await RoomModel.find({ _id: { $in: roomIds },maxGuests: { $gte: maxGuests }, ...categoryCondition}).sort({ 'priceOptions.price': sortOrder === 'asc' ? 1 : -1 }).lean();
+  const roomsDetails = await RoomModel.find({ _id: { $in: roomIds },maxGuests: { $gte: maxGuests }}).sort({'size.en': sizeOrder === 'lowToHigh' ? 1 : -1, 'priceOptions.price': sortOrder === 'asc' ? 1 : -1 }).lean();
 
   // Step 3: Combine the available quantities with localized room details
   const localizedRooms = roomsDetails.map(room => {
