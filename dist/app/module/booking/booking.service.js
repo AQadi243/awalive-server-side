@@ -16,69 +16,125 @@ exports.bookingService = void 0;
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mongoose_1 = __importDefault(require("mongoose"));
-const booking_model_1 = __importDefault(require("./booking.model"));
+// import BookingModel from './booking.model';
 const AppError_1 = __importDefault(require("../../Error/errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-const room_model_1 = require("../room/room.model");
-const sendEmail_1 = require("../../utils/sendEmail");
-const createBookingInDb = (bookingData) => __awaiter(void 0, void 0, void 0, function* () {
+const booking_model_1 = require("./booking.model");
+const generateRandomBookingNumber = () => {
+    // Generates a random number between 100000000 and 999999999
+    return Math.floor(100000000 + Math.random() * 900000000).toString();
+};
+const createBooking = (bookingData) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
-    session.startTransaction();
     try {
-        // Retrieve the room information from the database
-        const room = yield room_model_1.RoomModel.findById(bookingData.roomId).session(session);
-        if (!room) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        session.startTransaction();
+        // Generate a unique, random booking number
+        let unique = false;
+        let bookingNumber;
+        while (!unique) {
+            bookingNumber = generateRandomBookingNumber();
+            const existingBooking = yield booking_model_1.BookingModel.findOne({ bookingNumber }).session(session);
+            if (!existingBooking) {
+                unique = true;
+            }
         }
-        if (typeof bookingData.checkIn !== 'string' ||
-            typeof bookingData.checkOut !== 'string') {
-            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid check-in or check-out date');
-        }
-        // Calculate the number of nights
-        const checkInDate = new Date(bookingData.checkIn);
-        const checkOutDate = new Date(bookingData.checkOut);
-        const night = (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24);
-        // Calculate the total price and tax
-        const roomPrice = room.priceOptions[0].price; // Assuming using the first price option
-        const totalPrice = roomPrice * night;
-        const taxRate = 0.15; // 15%
-        const tax = totalPrice * taxRate;
-        const totalWithTax = totalPrice + tax;
-        // const formattedTotalPrice = totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        // const formattedTax = tax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        // const formattedTotalWithTax = totalWithTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        // Format the prices to have 2 decimal places
-        const formattedTotalPrice = parseFloat(totalPrice.toFixed(2));
-        const formattedTax = parseFloat(tax.toFixed(2));
-        const formattedTotalWithTax = parseFloat(totalWithTax.toFixed(2));
-        // Set calculated values in booking data
-        bookingData.night = night;
-        bookingData.numberOfGuests = room.maxGuests;
-        bookingData.tax = formattedTax;
-        bookingData.totalPrice = formattedTotalPrice;
-        bookingData.totalWithTax = formattedTotalWithTax;
-        // Create the booking
-        const result = yield booking_model_1.default.create([bookingData], { session });
+        // Add the unique booking number to the booking data
+        const finalBookingData = Object.assign(Object.assign({}, bookingData), { bookingNumber });
+        const booking = new booking_model_1.BookingModel(finalBookingData);
+        const result = yield booking.save({ session });
         if (!result) {
-            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Booking creation failed');
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Booking creation failed.');
         }
-        // If booking creation is successful, send an email
-        const bookingConfirmationHtml = `<p>Your booking for ${room.title} is pending.</p><p>Total Price: ${totalWithTax}</p>`;
-        yield (0, sendEmail_1.sendEmail)(bookingData.userEmail, 'You have booked', bookingConfirmationHtml);
         yield session.commitTransaction();
-        session.endSession();
-        return result;
+        return result; // Directly return the created document
     }
     catch (error) {
-        console.error('Error in createBookingInDb:', error);
+        console.error('Error in createBooking:', error);
         yield session.abortTransaction();
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Booking creation failed: ${error.message}`);
+    }
+    finally {
         session.endSession();
-        throw error;
+    }
+});
+// const createBookingInDb = async (bookingData: Partial<TBooking>) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+//   try {
+//     // Retrieve the room information from the database
+//     const room = await RoomModel.findById(bookingData.roomId).session(session);
+//     if (!room) {
+//       throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+//     }
+//     if (
+//       typeof bookingData.checkIn !== 'string' ||
+//       typeof bookingData.checkOut !== 'string'
+//     ) {
+//       throw new AppError(
+//         httpStatus.BAD_REQUEST,
+//         'Invalid check-in or check-out date',
+//       );
+//     }
+//     // Calculate the number of nights
+//     const checkInDate = new Date(bookingData.checkIn);
+//     const checkOutDate = new Date(bookingData.checkOut);
+//     const night =
+//       (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24);
+//     // Calculate the total price and tax
+//     const roomPrice = room.priceOptions[0].price; // Assuming using the first price option
+//     const totalPrice = roomPrice * night;
+//     const taxRate = 0.15; // 15%
+//     const tax = totalPrice * taxRate;
+//     const totalWithTax = totalPrice + tax;
+//     // const formattedTotalPrice = totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//     // const formattedTax = tax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//     // const formattedTotalWithTax = totalWithTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//     // Format the prices to have 2 decimal places
+//     const formattedTotalPrice = parseFloat(totalPrice.toFixed(2));
+//     const formattedTax = parseFloat(tax.toFixed(2));
+//     const formattedTotalWithTax = parseFloat(totalWithTax.toFixed(2));
+//     // Set calculated values in booking data
+//     bookingData.night = night;
+//     bookingData.numberOfGuests = room.maxGuests;
+//     bookingData.tax = formattedTax;
+//     bookingData.totalPrice = formattedTotalPrice;
+//     bookingData.totalWithTax = formattedTotalWithTax;
+//     // Create the booking
+//     const result = await BookingModel.create([bookingData], { session });
+//     if (!result) {
+//       throw new AppError(httpStatus.BAD_REQUEST, 'Booking creation failed');
+//     }
+//     // If booking creation is successful, send an email
+//     const bookingConfirmationHtml = `<p>Your booking for ${room.title} is pending.</p><p>Total Price: ${totalWithTax}</p>`;
+//     await sendEmail(bookingData.userEmail as string, 'You have booked', bookingConfirmationHtml);
+//     await session.commitTransaction();
+//     session.endSession();
+//     return result;
+//   } catch (error) {
+//     console.error('Error in createBookingInDb:', error);
+//     await session.abortTransaction();
+//     session.endSession();
+//     throw error;
+//   }
+// };
+const getBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const booking = yield booking_model_1.BookingModel.findById(id)
+            .populate('roomId') // Assumption: 'roomId' is the field in the Booking schema referencing the Room model.
+            .exec(); // Executes the query
+        if (!booking) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Booking not found');
+        }
+        return booking; // Return the found booking with populated room details
+    }
+    catch (error) {
+        console.error('Error in getBookingById:', error);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error fetching booking: ${error.message}`);
     }
 });
 const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const bookings = yield booking_model_1.default.find();
+        const bookings = yield booking_model_1.BookingModel.find();
         return bookings;
     }
     catch (error) {
@@ -89,7 +145,7 @@ const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
 const getBookingByEmail = (email, language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Cast the result of populate to TBookingsRoom
-        const bookings = yield booking_model_1.default.find({ userEmail: email })
+        const bookings = yield booking_model_1.BookingModel.find({ userEmail: email })
             .populate('roomId')
             .sort({ createdAt: -1 })
             .lean();
@@ -97,25 +153,31 @@ const getBookingByEmail = (email, language) => __awaiter(void 0, void 0, void 0,
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No bookings found for this email');
         }
         for (const booking of bookings) {
-            if (new Date(booking.checkOut).getTime() < Date.now() && booking.bookingStatus !== 'completed') {
+            if (new Date(booking.checkOut).getTime() < Date.now() &&
+                booking.bookingStatus !== 'completed') {
                 booking.bookingStatus = 'completed';
                 // Update the booking in the database
-                yield booking_model_1.default.updateOne({ _id: booking._id }, { $set: { bookingStatus: 'completed' } });
+                yield booking_model_1.BookingModel.updateOne({ _id: booking._id }, { $set: { bookingStatus: 'completed' } });
                 // Note: If working within a session or transaction, make sure to pass those as options to the updateOne call
             }
         }
-        const localizedBookings = bookings.map(booking => {
-            const localizedRoom = booking.roomId ? {
-                id: booking.roomId._id,
-                title: booking.roomId.title[language],
-                size: booking.roomId.size[language],
-                images: booking.roomId.images,
-                subTitle: booking.roomId.subTitle ? {
-                    roomOne: booking.roomId.subTitle.roomOne[language],
-                    roomTwo: booking.roomId.subTitle.roomTwo && booking.roomId.subTitle.roomTwo[language],
-                } : undefined,
-                // ... localize other fields as needed
-            } : null;
+        const localizedBookings = bookings.map((booking) => {
+            const localizedRoom = booking.roomId
+                ? {
+                    id: booking.roomId._id,
+                    title: booking.roomId.title[language],
+                    size: booking.roomId.size[language],
+                    images: booking.roomId.images,
+                    subTitle: booking.roomId.subTitle
+                        ? {
+                            roomOne: booking.roomId.subTitle.roomOne[language],
+                            roomTwo: booking.roomId.subTitle.roomTwo &&
+                                booking.roomId.subTitle.roomTwo[language],
+                        }
+                        : undefined,
+                    // ... localize other fields as needed
+                }
+                : null;
             return Object.assign(Object.assign({}, booking), { roomId: localizedRoom });
         });
         return localizedBookings;
@@ -149,7 +211,8 @@ const getBookingByEmail = (email, language) => __awaiter(void 0, void 0, void 0,
 //   }
 // };
 exports.bookingService = {
-    createBookingInDb,
+    createBooking,
+    getBookingById,
     getAllBookings,
     getBookingByEmail,
 };

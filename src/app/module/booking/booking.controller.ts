@@ -59,33 +59,33 @@ const getAllBookingRooms = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-const getSingleBookedRoom = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.params.userEmail,'asdjhh');
-  const userEmail = req.params.userEmail;
-  // const currentLanguage = req.headers['accept-language'];
-  //  console.log(req.user);
-  const languageParam = req.query.lang;
-    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
-                     ? languageParam 
-                     : 'en';
-  const result = await bookingService.getBookingByEmail(userEmail, language );
+// const getSingleBookedRoom = catchAsync(async (req: Request, res: Response) => {
+//   console.log(req.params.userEmail,'asdjhh');
+//   const userEmail = req.params.userEmail;
+//   // const currentLanguage = req.headers['accept-language'];
+//   //  console.log(req.user);
+//   const languageParam = req.query.lang;
+//     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+//                      ? languageParam 
+//                      : 'en';
+//   const result = await bookingService.getBookingByEmail(userEmail, language );
 
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'OPPS No Room found');
-  } else {
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Room booked found successfully',
-      data: result,
-    });
-  }
-});
+//   if (!result) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'OPPS No Room found');
+//   } else {
+//     sendResponse(res, {
+//       statusCode: httpStatus.OK,
+//       success: true,
+//       message: 'Room booked found successfully',
+//       data: result,
+//     });
+//   }
+// });
 
 export const createBookingController = {
   bookingRoom,
   getSingleBookedRoomController,
   getAllBookingRooms,
-  getSingleBookedRoom
+  // getSingleBookedRoom
 
 };

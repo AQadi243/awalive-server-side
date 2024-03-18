@@ -1,6 +1,6 @@
 import  express  from "express";
 import { validateRequest } from "../../midleware/validateRequest";
-import { BookingDataZodSchema, bookingValidationSchema } from "./booking.validation";
+import { BookingDataZodSchema } from "./booking.validation";
 import { createBookingController } from "./booking.controller";
 import { USER_ROLE } from "../../conestants/user.contents";
 import isAdmin from "../../midleware/isAdmin";

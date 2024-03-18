@@ -1,65 +1,85 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BookingModel = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const mongoose_1 = __importStar(require("mongoose"));
+const mongoose_1 = __importDefault(require("mongoose"));
+// import { TBooking } from './booking.interface';
 // import { RoomModel } from '../room/room.model';
-const formDataSchema = new mongoose_1.default.Schema({
-    address: String,
-    arrivalTime: String,
-    city: String,
-    email: { type: String, required: true },
+// const mongoose = require('mongoose');
+// Define the GuestData Schema
+const GuestDataSchema = new mongoose_1.default.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    message: String,
-    phone: { type: String, required: true }
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    address: { type: String, },
+    city: { type: String, },
+    arrivalTime: { type: String, },
+    message: { type: String, },
+    // Add other guest fields here
 });
-const bookingSchema = new mongoose_1.default.Schema({
-    userEmail: { type: String, required: true, ref: 'User' }, // Assuming a User model exists
-    roomId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true, ref: 'Room' }, // Assuming a Room model exists
-    formData: { type: formDataSchema, required: true },
+// Define the BookingData Schema
+const BookingDataSchema = new mongoose_1.default.Schema({
     checkIn: { type: String, required: true },
     checkOut: { type: String, required: true },
-    night: { type: Number, required: true },
+    guestData: { type: GuestDataSchema, required: true },
     numberOfGuests: { type: Number, required: true },
-    tax: { type: Number, required: true },
-    totalPrice: { type: Number, required: true },
-    totalWithTax: { type: Number, required: true },
+    paymentType: { type: String, required: true },
+    roomId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true, ref: 'Room' },
+    userId: { type: String, required: true }, // Assuming the userId could be a string like an email
+    bookingNumber: { type: String, required: true, unique: true },
     bookingStatus: {
         type: String,
-        required: true,
-        enum: ['Booked', 'cancelled', 'completed'],
-        default: "Booked"
+        enum: ['Booked', 'Cancelled', 'Completed'],
+        default: 'Booked'
     },
     paymentStatus: {
         type: String,
-        required: true,
-        enum: ['pending', 'paid'],
-        default: "pending"
+        enum: ['Pending', 'Paid'],
+        default: 'Pending'
     }
-}, { timestamps: true });
+    // Add other booking fields here
+});
+// Create the model from the schema and export it
+exports.BookingModel = mongoose_1.default.model('Booking', BookingDataSchema);
+// module.exports = Booking;
+// const userDataSchema = new mongoose.Schema({
+//     address: String,
+//     arrivalTime: String,
+//     city: String,
+//     email: { type: String, required: true },
+//     firstName: { type: String, required: true },
+//     lastName: { type: String, required: true },
+//     message: String,
+//     phone: { type: String, required: true }
+//   });
+//   const bookingSchema = new mongoose.Schema({
+//     // userEmail: { type: String, required: true, ref: 'User' }, // Assuming a User model exists
+//     roomId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Room' }, // Assuming a Room model exists
+//     userData: { type: userDataSchema, required: true },
+//     checkIn: { type: String, required: true },
+//     checkOut: { type: String, required: true },
+//     // night: { type: Number, required: true },
+//     numberOfGuests: { type: Number, required: true },
+//     // tax: { type: Number, required: true },
+//     // totalPrice: { type: Number, required: true },
+//     // totalWithTax: { type: Number, required: true },
+//     bookingStatus: { 
+//       type: String, 
+//       required: true, 
+//       enum: [ 'Booked', 'cancelled','completed'],
+//       default:"Booked"
+//     },
+//     paymentStatus: { 
+//       type: String, 
+//       required: true, 
+//       enum: ['pending', 'paid'],
+//       default:"pending"
+//     }
+//   },{timestamps:true});
 // const bookingSchema = new Schema({
 //   userID: {
 //       type: Schema.Types.ObjectId,
@@ -142,5 +162,5 @@ const bookingSchema = new mongoose_1.default.Schema({
 //     next(error);
 // }
 // });
-const BookingModel = (0, mongoose_1.model)('Booking', bookingSchema);
-exports.default = BookingModel;
+// const BookingModel = model<TBooking>('Booking', bookingSchema);
+// export default BookingModel;

@@ -22,7 +22,7 @@ const bookingRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     // console.log(req.body);
     const bookingData = req.body;
     //  console.log(req.user);
-    const result = yield booking_service_1.bookingService.createBookingInDb(bookingData);
+    const result = yield booking_service_1.bookingService.createBooking(bookingData);
     if (!result) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'OPPS Room not booked');
     }
@@ -32,6 +32,23 @@ const bookingRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
             success: true,
             message: 'Room booked successfully',
             data: result,
+        });
+    }
+}));
+const getSingleBookedRoomController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // console.log(req.body);
+    const { id } = req.params;
+    //  console.log(req.user);
+    const bookedRoom = yield booking_service_1.bookingService.getBookingById(id);
+    if (!bookedRoom) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Oops, room not booked or booking not found');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Room booking retrieved successfully',
+            data: bookedRoom, // Return the booking data
         });
     }
 }));
@@ -76,6 +93,7 @@ const getSingleBookedRoom = (0, catchAsync_1.default)((req, res) => __awaiter(vo
 }));
 exports.createBookingController = {
     bookingRoom,
+    getSingleBookedRoomController,
     getAllBookingRooms,
     getSingleBookedRoom
 };
