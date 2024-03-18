@@ -9,7 +9,7 @@ const bookingRoom = catchAsync(async (req: Request, res: Response) => {
   // console.log(req.body);
   const bookingData = req.body;
   //  console.log(req.user);
-  const result = await bookingService.createBookingInDb(bookingData);
+  const result = await bookingService.createBooking(bookingData);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'OPPS Room not booked');
@@ -19,6 +19,24 @@ const bookingRoom = catchAsync(async (req: Request, res: Response) => {
       success: true,
       message: 'Room booked successfully',
       data: result,
+    });
+  }
+});
+
+const getSingleBookedRoomController = catchAsync(async (req: Request, res: Response) => {
+  // console.log(req.body);
+  const {id} = req.params;
+  //  console.log(req.user);
+  const bookedRoom = await bookingService.getBookingById(id);
+
+  if (!bookedRoom) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Oops, room not booked or booking not found');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booking retrieved successfully',
+      data: bookedRoom, // Return the booking data
     });
   }
 });
@@ -66,6 +84,7 @@ const getSingleBookedRoom = catchAsync(async (req: Request, res: Response) => {
 
 export const createBookingController = {
   bookingRoom,
+  getSingleBookedRoomController,
   getAllBookingRooms,
   getSingleBookedRoom
 

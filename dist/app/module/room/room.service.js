@@ -260,9 +260,11 @@ const deleteRoomById = (roomId) => __awaiter(void 0, void 0, void 0, function* (
 //   return localizedRooms;
 //   // return rooms;
 // };
-const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder = 'asc', language, maxGuests, categoryId) => __awaiter(void 0, void 0, void 0, function* () {
+const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, language, maxGuests, sizeOrder // Added this parameter
+// categoryId: string
+) => __awaiter(void 0, void 0, void 0, function* () {
     // Build a condition object for category
-    const categoryCondition = categoryId ? { type: new mongoose_1.default.Types.ObjectId(categoryId) } : {};
+    //  const categoryCondition = categoryId ? { type: new mongoose.Types.ObjectId(categoryId) } : {};
     const availableRooms = yield room_model_1.RoomModel.aggregate([
         {
             $lookup: {
@@ -320,7 +322,7 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder = '
     // Extract IDs for fetching room details
     const roomIds = availableRooms.map(room => room._id);
     // Step 2: Retrieve full room details for the available rooms
-    const roomsDetails = yield room_model_1.RoomModel.find(Object.assign({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } }, categoryCondition)).sort({ 'priceOptions.price': sortOrder === 'asc' ? 1 : -1 }).lean();
+    const roomsDetails = yield room_model_1.RoomModel.find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } }).sort({ 'size.en': sizeOrder === 'lowToHigh' ? 1 : -1, 'priceOptions.price': sortOrder === 'asc' ? 1 : -1 }).lean();
     // Step 3: Combine the available quantities with localized room details
     const localizedRooms = roomsDetails.map(room => {
         // Find the corresponding availableQty for this room

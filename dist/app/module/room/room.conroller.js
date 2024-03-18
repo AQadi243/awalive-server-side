@@ -149,12 +149,16 @@ const availableRoomController = (0, catchAsync_1.default)((req, res) => __awaite
     const checkOutDate = req.query.checkOutDate;
     const sortOrder = req.query.sortOrder;
     const maxGuestsParam = req.query.maxGuests;
-    const categoryId = req.query.categoryId;
+    // const categoryId = req.query.categoryId as string;
+    const sizeOrder = req.query.sizeOrder;
     const maxGuests = parseInt(maxGuestsParam, 10);
+    // if (req.query.sizeOrder === 'lowToHigh' || req.query.sizeOrder === 'highToLow') {
+    //   sizeOrder = req.query.sizeOrder;
+    // }
     if (sortOrder && sortOrder !== 'asc' && sortOrder !== 'desc') {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid sortOrder parameter. Must be 'asc' or 'desc'.");
     }
-    const result = yield room_service_1.roomService.checkAllRoomAvailability(checkInDate, checkOutDate, sortOrder, language, maxGuests, categoryId);
+    const result = yield room_service_1.roomService.checkAllRoomAvailability(checkInDate, checkOutDate, sortOrder, language, maxGuests, sizeOrder);
     if (!result || result.length === 0) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No available room found');
     }
