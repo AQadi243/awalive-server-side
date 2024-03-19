@@ -55,7 +55,7 @@ export type TRoom = {
   description: LocalizedString;
   maxGuests: number;
   roomQTY: number;
-  size: LocalizedString;
+  size:  number;
   features: LocalizedString[];
   services: LocalizedString[];
   images: string[];

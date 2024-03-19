@@ -89,10 +89,11 @@ const roomSchema = new mongoose.Schema({
   },
   maxGuests: { type: Number, required: [true, 'Maximum number of guests is required'] },
   roomQTY: { type: Number, required: [true, 'Room quantity is required'] },
-  size: {
-    en: { type: String, required: [true, 'English room size is required'] },
-    ar: { type: String, required: [true, 'Arabic room size is required'] }
-  },
+  size:  { type: Number, required: [true, 'size is required'] },
+  // size: {
+  //   en: { type: String, required: [true, 'English room size is required'] },
+  //   ar: { type: String, required: [true, 'Arabic room size is required'] }
+  // },
   features: [localizedFeatureSchema],
   services: [localizedFeatureSchema],
  

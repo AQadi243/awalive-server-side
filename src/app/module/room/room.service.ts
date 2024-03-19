@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
-import { LanguageKey, SortOrder, TRoom } from './room.interface';
+import { LanguageKey,  TRoom } from './room.interface';
 import { RoomModel } from './room.model';
 import AppError from '../../Error/errors/AppError';
 import httpStatus from 'http-status';
@@ -113,7 +113,7 @@ const findAllRoomsFromDb = async (language: LanguageKey) => {
       description: room.description[language],
       maxGuests: room.maxGuests,
       roomQTY: room.roomQTY,
-      size: room.size[language],
+      size: room.size,
       features: room.features.map((feature) => feature[language]),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
@@ -155,7 +155,7 @@ const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
       description: room.description[language],
       maxGuests: room.maxGuests,
       roomQTY: room.roomQTY,
-      size: room.size[language],
+      size: room.size,
       features: room.features.map((feature) => feature[language]),
       services: room.services.map((service) => service[language]),
       images: room.images,
@@ -379,7 +379,7 @@ if (sortOrder === 'asc' || sortOrder === 'desc') {
   sortOrderCondition['priceOptions.0.price'] = sortOrder === 'asc' ? 1 : -1;
 }
 if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
-  sortOrderCondition['size.en'] = sizeOrder === 'lowToHigh' ? 1 : -1;
+  sortOrderCondition['size'] = sizeOrder === 'lowToHigh' ? 1 : -1;
 }
   
   const roomsDetails = await RoomModel
@@ -402,7 +402,7 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
       maxGuests: room.maxGuests,
       roomQTY: room.roomQTY,
       availableQty, // include the availableQty
-      size: room.size[language],
+      size: room.size,
       features: room.features.map(feature => feature[language]),
       images: room.images,
       priceOptions: room.priceOptions.map(priceOption => ({

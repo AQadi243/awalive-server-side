@@ -155,7 +155,7 @@ const deleteSingleRoom = catchAsync(async (req: Request, res: Response) => {
 
 
 const availableRoomController = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.query, 'input comming');
+  
  
 const language = req.query.lang as LanguageKey;
 const checkInDate  = req.query.checkInDate as string ;
@@ -166,9 +166,7 @@ const maxGuestsParam = req.query.maxGuests;
 const sizeOrder = req.query.sizeOrder as SizeOrder;
 const maxGuests  =  parseInt(maxGuestsParam as string, 10);
 
-// if (req.query.sizeOrder === 'lowToHigh' || req.query.sizeOrder === 'highToLow') {
-//   sizeOrder = req.query.sizeOrder;
-// }
+
 
   if (sortOrder && sortOrder !== 'asc' && sortOrder !== 'desc') {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid sortOrder parameter. Must be 'asc' or 'desc'.");

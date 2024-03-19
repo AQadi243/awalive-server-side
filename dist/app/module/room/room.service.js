@@ -321,8 +321,19 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
     ]);
     // Extract IDs for fetching room details
     const roomIds = availableRooms.map(room => room._id);
+    const sortOrderCondition = {};
+    if (sortOrder === 'asc' || sortOrder === 'desc') {
+        sortOrderCondition['priceOptions.0.price'] = sortOrder === 'asc' ? 1 : -1;
+    }
+    if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
+        sortOrderCondition['size.en'] = sizeOrder === 'lowToHigh' ? 1 : -1;
+    }
+    const roomsDetails = yield room_model_1.RoomModel
+        .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } })
+        .sort(sortOrderCondition)
+        .lean();
     // Step 2: Retrieve full room details for the available rooms
-    const roomsDetails = yield room_model_1.RoomModel.find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } }).sort({ 'size.en': sizeOrder === 'lowToHigh' ? 1 : -1, 'priceOptions.0.price': sortOrder === 'asc' ? 1 : -1 }).lean();
+    // const roomsDetails = await RoomModel.find({ _id: { $in: roomIds },maxGuests: { $gte: maxGuests }}).sort({'size.en': sizeOrder === 'lowToHigh' ? 1 : -1, 'priceOptions.0.price': sortOrder === 'asc' ? 1 : -1 }).lean();
     // Step 3: Combine the available quantities with localized room details
     const localizedRooms = roomsDetails.map(room => {
         // Find the corresponding availableQty for this room
