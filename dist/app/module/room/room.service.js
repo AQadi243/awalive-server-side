@@ -108,7 +108,7 @@ const findAllRoomsFromDb = (language) => __awaiter(void 0, void 0, void 0, funct
             description: room.description[language],
             maxGuests: room.maxGuests,
             roomQTY: room.roomQTY,
-            size: room.size[language],
+            size: room.size,
             features: room.features.map((feature) => feature[language]),
             images: room.images,
             priceOptions: room.priceOptions.map((priceOption) => ({
@@ -145,7 +145,7 @@ const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, voi
             description: room.description[language],
             maxGuests: room.maxGuests,
             roomQTY: room.roomQTY,
-            size: room.size[language],
+            size: room.size,
             features: room.features.map((feature) => feature[language]),
             services: room.services.map((service) => service[language]),
             images: room.images,
@@ -326,7 +326,7 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
         sortOrderCondition['priceOptions.0.price'] = sortOrder === 'asc' ? 1 : -1;
     }
     if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
-        sortOrderCondition['size.en'] = sizeOrder === 'lowToHigh' ? 1 : -1;
+        sortOrderCondition['size'] = sizeOrder === 'lowToHigh' ? 1 : -1;
     }
     const roomsDetails = yield room_model_1.RoomModel
         .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } })
@@ -346,7 +346,7 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
             maxGuests: room.maxGuests,
             roomQTY: room.roomQTY,
             availableQty, // include the availableQty
-            size: room.size[language],
+            size: room.size,
             features: room.features.map(feature => feature[language]),
             images: room.images,
             priceOptions: room.priceOptions.map(priceOption => ({

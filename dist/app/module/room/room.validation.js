@@ -27,7 +27,7 @@ const RoomValidationSchema = zod_1.z.object({
         description: LocalizedStringValidationSchema,
         maxGuests: zod_1.z.number({ required_error: 'Maximum number of guests is required' }),
         roomQTY: zod_1.z.number({ required_error: 'Room quantity is required' }),
-        size: LocalizedStringValidationSchema,
+        size: zod_1.z.number({ required_error: 'Size is required' }),
         features: zod_1.z.array(LocalizedStringValidationSchema),
         services: zod_1.z.array(LocalizedStringValidationSchema),
         images: zod_1.z.array(zod_1.z.string({ required_error: 'At least one image URL must be specified' })),
