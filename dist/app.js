@@ -13,7 +13,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app = (0, express_1.default)();
 // parser
 app.use((0, cors_1.default)({
-    origin: ['https://mutlilangualawalive.vercel.app', 'http://127.0.0.1:5173'], // Update this to your frontend's URL
+    origin: ['http://127.0.0.1:5173', 'https://mutlilangualawalive.vercel.app'], // Update this to your frontend's URL
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization'
