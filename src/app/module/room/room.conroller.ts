@@ -155,11 +155,12 @@ const deleteSingleRoom = catchAsync(async (req: Request, res: Response) => {
 
 
 const availableRoomController = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.query, 'input comming');
  
 const language = req.query.lang as LanguageKey;
 const checkInDate  = req.query.checkInDate as string ;
 const checkOutDate   =  req.query.checkOutDate as string ;
-const sortOrder = req.query.sortOrder as SortOrder;
+const sortOrder = req.query.sortByPrice as SortOrder;
 const maxGuestsParam = req.query.maxGuests;
 // const categoryId = req.query.categoryId as string;
 const sizeOrder = req.query.sizeOrder as SizeOrder;

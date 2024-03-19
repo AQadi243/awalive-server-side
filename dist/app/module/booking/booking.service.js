@@ -19,6 +19,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 // import BookingModel from './booking.model';
 const AppError_1 = __importDefault(require("../../Error/errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
+// import { RoomModel } from '../room/room.model';
+// import { sendEmail } from '../../utils/sendEmail';
+// import { LanguageKey } from '../room/room.interface';
 const booking_model_1 = require("./booking.model");
 const generateRandomBookingNumber = () => {
     // Generates a random number between 100000000 and 999999999
@@ -142,54 +145,68 @@ const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Error retrieving bookings');
     }
 });
-const getBookingByEmail = (email, language) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // Cast the result of populate to TBookingsRoom
-        const bookings = yield booking_model_1.BookingModel.find({ userEmail: email })
-            .populate('roomId')
-            .sort({ createdAt: -1 })
-            .lean();
-        if (!bookings || bookings.length === 0) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No bookings found for this email');
-        }
-        for (const booking of bookings) {
-            if (new Date(booking.checkOut).getTime() < Date.now() &&
-                booking.bookingStatus !== 'completed') {
-                booking.bookingStatus = 'completed';
-                // Update the booking in the database
-                yield booking_model_1.BookingModel.updateOne({ _id: booking._id }, { $set: { bookingStatus: 'completed' } });
-                // Note: If working within a session or transaction, make sure to pass those as options to the updateOne call
-            }
-        }
-        const localizedBookings = bookings.map((booking) => {
-            const localizedRoom = booking.roomId
-                ? {
-                    id: booking.roomId._id,
-                    title: booking.roomId.title[language],
-                    size: booking.roomId.size[language],
-                    images: booking.roomId.images,
-                    subTitle: booking.roomId.subTitle
-                        ? {
-                            roomOne: booking.roomId.subTitle.roomOne[language],
-                            roomTwo: booking.roomId.subTitle.roomTwo &&
-                                booking.roomId.subTitle.roomTwo[language],
-                        }
-                        : undefined,
-                    // ... localize other fields as needed
-                }
-                : null;
-            return Object.assign(Object.assign({}, booking), { roomId: localizedRoom });
-        });
-        return localizedBookings;
-    }
-    catch (error) {
-        if (error instanceof AppError_1.default) {
-            // Rethrow the error if it's an AppError
-            throw error;
-        }
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Unexpected error in getBookingByEmail');
-    }
-});
+// const getBookingByEmail = async (email: string, language: LanguageKey) => {
+//   try {
+//     // Cast the result of populate to TBookingsRoom
+//     const bookings = await BookingModel.find({ userEmail: email })
+//       .populate<{ roomId: TPopulatedRoom }>('roomId')
+//       .sort({ createdAt: -1 })
+//       .lean();
+//     if (!bookings || bookings.length === 0) {
+//       throw new AppError(
+//         httpStatus.NOT_FOUND,
+//         'No bookings found for this email',
+//       );
+//     }
+//     for (const booking of bookings) {
+//       if (
+//         new Date(booking.checkOut).getTime() < Date.now() &&
+//         booking.bookingStatus !== 'completed'
+//       ) {
+//         booking.bookingStatus = 'completed';
+//         // Update the booking in the database
+//         await BookingModel.updateOne(
+//           { _id: booking._id },
+//           { $set: { bookingStatus: 'completed' } },
+//         );
+//         // Note: If working within a session or transaction, make sure to pass those as options to the updateOne call
+//       }
+//     }
+//     const localizedBookings = bookings.map((booking) => {
+//       const localizedRoom = booking.roomId
+//         ? {
+//             id: booking.roomId._id,
+//             title: booking.roomId.title[language],
+//             size: booking.roomId.size[language],
+//             images: booking.roomId.images,
+//             subTitle: booking.roomId.subTitle
+//               ? {
+//                   roomOne: booking.roomId.subTitle.roomOne[language],
+//                   roomTwo:
+//                     booking.roomId.subTitle.roomTwo &&
+//                     booking.roomId.subTitle.roomTwo[language],
+//                 }
+//               : undefined,
+//             // ... localize other fields as needed
+//           }
+//         : null;
+//       return {
+//         ...booking,
+//         roomId: localizedRoom,
+//       };
+//     });
+//     return localizedBookings;
+//   } catch (error) {
+//     if (error instanceof AppError) {
+//       // Rethrow the error if it's an AppError
+//       throw error;
+//     }
+//     throw new AppError(
+//       httpStatus.INTERNAL_SERVER_ERROR,
+//       'Unexpected error in getBookingByEmail',
+//     );
+//   }
+// };
 // const getBookingByEmail = async (email: string, language: LanguageKey) => {
 //   const titleField = 'title[language]';
 //   const descriptionField = `description.${language}`;
@@ -214,5 +231,5 @@ exports.bookingService = {
     createBooking,
     getBookingById,
     getAllBookings,
-    getBookingByEmail,
+    // getBookingByEmail,
 };
