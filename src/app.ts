@@ -9,12 +9,19 @@ const app = express()
 
 // parser
 
+// app.use(cors({
+//   origin:  [ 'https://awalivehotel.vercel.app/, http://127.0.0.1:5173','https://mutlilangualawalive.vercel.app'],  // Update this to your frontend's URL
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+//   allowedHeaders: 'Content-Type,Authorization'
+// }));
 app.use(cors({
-  origin:  [ 'https://awalivehotel.vercel.app/, http://127.0.0.1:5173','https://mutlilangualawalive.vercel.app'],  // Update this to your frontend's URL
+  origin: '*',  // Allows all origins
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
+  credentials: true, // Note: When using '*' as an origin, credentials cannot be used. If you need credentials, specify the exact origins instead of '*'.
   allowedHeaders: 'Content-Type,Authorization'
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 

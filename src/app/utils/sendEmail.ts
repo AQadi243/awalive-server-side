@@ -10,6 +10,9 @@ export const sendEmail = async (to: string, subject: string, html: string)=>{
           user: "hazzadmdap@gmail.com",
           pass: "amru bimt tctt bopw",
         },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
 
     await transporter.sendMail({
