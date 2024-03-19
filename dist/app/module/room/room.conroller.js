@@ -144,7 +144,6 @@ const deleteSingleRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 
 //   }
 // });
 const availableRoomController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.query, "check the search in put ");
     const language = req.query.lang;
     const checkInDate = req.query.checkInDate;
     const checkOutDate = req.query.checkOutDate;

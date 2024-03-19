@@ -23,6 +23,7 @@ const http_status_1 = __importDefault(require("http-status"));
 // import { sendEmail } from '../../utils/sendEmail';
 // import { LanguageKey } from '../room/room.interface';
 const booking_model_1 = require("./booking.model");
+const sendEmail_1 = require("../../utils/sendEmail");
 const generateRandomBookingNumber = () => {
     // Generates a random number between 100000000 and 999999999
     return Math.floor(100000000 + Math.random() * 900000000).toString();
@@ -44,15 +45,36 @@ const createBooking = (bookingData) => __awaiter(void 0, void 0, void 0, functio
         // Add the unique booking number to the booking data
         const finalBookingData = Object.assign(Object.assign({}, bookingData), { bookingNumber });
         const booking = new booking_model_1.BookingModel(finalBookingData);
-        const result = yield booking.save({ session });
-        if (!result) {
+        const savedBooking = yield booking.save({ session });
+        if (!savedBooking) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Booking creation failed.');
         }
+        const bookingResponse = savedBooking.toObject();
+        const populatedBooking = (yield savedBooking.populate('roomId'));
+        if (populatedBooking.roomId) { // Check if roomId is populated
+            const roomTitle = populatedBooking.roomId.title.en;
+            // Email content
+            const bookingConfirmationHtml = `
+        <h1>Your Booking Confirmation</h1>
+        <p>Dear ${populatedBooking.guestData.firstName},</p>
+        <p>Thank you for your booking. Below are your booking details:</p>
+        <ul>
+          <li><strong>Booking Number:</strong> ${populatedBooking.bookingNumber}</li>
+          <li><strong>Room Title:</strong> ${roomTitle}</li>
+          <li><strong>Check-In Date:</strong> ${populatedBooking.checkIn}</li>
+          <li><strong>Check-Out Date:</strong> ${populatedBooking.checkOut}</li>
+          <li><strong>Number of Guests:</strong> ${populatedBooking.numberOfGuests}</li>
+          </ul>
+          <p>We look forward to hosting you soon!</p>
+          `;
+            // Send the confirmation email
+            yield (0, sendEmail_1.sendEmail)(populatedBooking.guestData.email, 'Your Booking Confirmation', bookingConfirmationHtml);
+        }
         yield session.commitTransaction();
-        return result; // Directly return the created document
+        // Return the non-populated booking data
+        return bookingResponse;
     }
     catch (error) {
-        console.error('Error in createBooking:', error);
         yield session.abortTransaction();
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Booking creation failed: ${error.message}`);
     }
@@ -131,7 +153,7 @@ const getBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
         return booking; // Return the found booking with populated room details
     }
     catch (error) {
-        console.error('Error in getBookingById:', error);
+        // console.error('Error in getBookingById:', error);
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error fetching booking: ${error.message}`);
     }
 });
@@ -141,7 +163,7 @@ const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
         return bookings;
     }
     catch (error) {
-        console.error('Error in getAllBookings:', error);
+        // console.error('Error in getAllBookings:', error);
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Error retrieving bookings');
     }
 });

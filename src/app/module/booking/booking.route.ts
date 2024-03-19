@@ -12,7 +12,7 @@ router.get('/',isAdmin( USER_ROLE.admin), createBookingController.getAllBookingR
 // router.get('/:userEmail',isAdmin(USER_ROLE.admin, USER_ROLE.user), createBookingController.getSingleBookedRoom )
 router.get('/:id', createBookingController.getSingleBookedRoomController )
 // router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
-router.post('/',  validateRequest(BookingDataZodSchema), createBookingController.bookingRoom)
+router.post('/', isAdmin( USER_ROLE.admin, USER_ROLE.user),  validateRequest(BookingDataZodSchema), createBookingController.bookingRoom)
 // router.put('/:userId', createUserController.updateSingleUser )
 // router.post('/', validateRequest(userValidationSchemaZod), createUserController.createUser )
 // router.delete('/:userId', createUserController.deleteSingleUser)
