@@ -9,6 +9,8 @@ import httpStatus from 'http-status';
 // import { sendEmail } from '../../utils/sendEmail';
 // import { LanguageKey } from '../room/room.interface';
 import { BookingModel } from './booking.model';
+import { sendEmail } from '../../utils/sendEmail';
+import { TRoom } from '../room/room.interface';
 
 
 const generateRandomBookingNumber = () => {
@@ -36,16 +38,43 @@ const createBooking = async (bookingData: TBookingData) => {
     // Add the unique booking number to the booking data
     const finalBookingData = { ...bookingData, bookingNumber };
     const booking = new BookingModel(finalBookingData);
-    const result = await booking.save({ session });
+    const savedBooking = await booking.save({ session });
     
-    if (!result) {
+    if (!savedBooking) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Booking creation failed.');
     }
+    const bookingResponse = savedBooking.toObject();
+    
+    const populatedBooking = (await savedBooking.populate('roomId')) as TBookingData  & { roomId: TRoom };
+    
+    if (populatedBooking.roomId) { // Check if roomId is populated
+      const roomTitle = populatedBooking.roomId.title.en;
+      // Email content
+      const bookingConfirmationHtml = `
+        <h1>Your Booking Confirmation</h1>
+        <p>Dear ${populatedBooking.guestData.firstName},</p>
+        <p>Thank you for your booking. Below are your booking details:</p>
+        <ul>
+          <li><strong>Booking Number:</strong> ${populatedBooking.bookingNumber}</li>
+          <li><strong>Room Title:</strong> ${roomTitle}</li>
+          <li><strong>Check-In Date:</strong> ${populatedBooking.checkIn}</li>
+          <li><strong>Check-Out Date:</strong> ${populatedBooking.checkOut}</li>
+          <li><strong>Number of Guests:</strong> ${populatedBooking.numberOfGuests}</li>
+          </ul>
+          <p>We look forward to hosting you soon!</p>
+          `;
+          
+          // Send the confirmation email
+          await sendEmail(populatedBooking.guestData.email, 'Your Booking Confirmation', bookingConfirmationHtml);
+        }
+        await session.commitTransaction();
+       
 
-    await session.commitTransaction();
-    return result; // Directly return the created document
+    
+    // Return the non-populated booking data
+    return bookingResponse;
   } catch (error: any) {
-    console.error('Error in createBooking:', error);
+    
     await session.abortTransaction();
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Booking creation failed: ${error.message}`);
   } finally {
@@ -135,7 +164,7 @@ const getBookingById = async (id: string) => {
 
       return booking; // Return the found booking with populated room details
   } catch (error:any) {
-      console.error('Error in getBookingById:', error);
+      // console.error('Error in getBookingById:', error);
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error fetching booking: ${error.message}`);
   }
 };
@@ -146,7 +175,7 @@ const getAllBookings = async () => {
     const bookings = await BookingModel.find();
     return bookings;
   } catch (error) {
-    console.error('Error in getAllBookings:', error);
+    // console.error('Error in getAllBookings:', error);
     throw new AppError(
       httpStatus.INTERNAL_SERVER_ERROR,
       'Error retrieving bookings',

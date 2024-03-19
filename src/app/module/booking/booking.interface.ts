@@ -15,6 +15,7 @@ export interface GuestData {
 }
 
 export interface TBookingData {
+  bookingNumber: number;
   checkIn: string;
   checkOut: string;
   guestData: GuestData;

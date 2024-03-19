@@ -155,7 +155,7 @@ const deleteSingleRoom = catchAsync(async (req: Request, res: Response) => {
 
 
 const availableRoomController = catchAsync(async (req: Request, res: Response) => {
-  
+
  
 const language = req.query.lang as LanguageKey;
 const checkInDate  = req.query.checkInDate as string ;
