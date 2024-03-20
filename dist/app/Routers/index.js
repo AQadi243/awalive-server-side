@@ -9,6 +9,7 @@ const room_route_1 = require("../module/room/room.route");
 const booking_route_1 = require("../module/booking/booking.route");
 const category_route_1 = require("../module/category/category.route");
 const review_route_1 = require("../module/review/review.route");
+const contact_route_1 = require("../module/Contact/contact.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -26,6 +27,10 @@ const moduleRoutes = [
     {
         path: '/category',
         route: category_route_1.CategoryRoute,
+    },
+    {
+        path: '/contact-message',
+        route: contact_route_1.ContactMessageRoute,
     },
     {
         path: '/booking',
