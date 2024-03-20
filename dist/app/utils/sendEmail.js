@@ -24,6 +24,9 @@ const sendEmail = (to, subject, html) => __awaiter(void 0, void 0, void 0, funct
             user: "hazzadmdap@gmail.com",
             pass: "amru bimt tctt bopw",
         },
+        tls: {
+            rejectUnauthorized: false
+        }
     });
     yield transporter.sendMail({
         from: '"AWalive Hotel" <noreply@awalivehotel.com>', //'hazzadmdap@gami.com', sender address

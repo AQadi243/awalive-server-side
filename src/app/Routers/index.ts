@@ -7,6 +7,7 @@ import { RoomRoute } from '../module/room/room.route';
 import { bookingRoute } from '../module/booking/booking.route';
 import { CategoryRoute } from '../module/category/category.route';
 import { RoomReviewRoute } from '../module/review/review.route';
+import { ContactMessageRoute } from '../module/Contact/contact.route';
 
 
 
@@ -30,6 +31,10 @@ const moduleRoutes = [
     {
       path: '/category',
       route: CategoryRoute,
+    },
+    {
+      path: '/contact-message',
+      route: ContactMessageRoute,
     },
     {
       path: '/booking',
