@@ -12,29 +12,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TableBookingController = void 0;
+exports.PromotionRoomController = void 0;
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
-const table_service_1 = require("./table.service");
-const createTableBookingController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const promotion_service_1 = require("./promotion.service");
+const createPromotionRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //saving to db
-    const result = yield table_service_1.tableBookingService.createTableBooking(req.body);
+    const result = yield promotion_service_1.PromotionRoomService.createPromotion(req.body);
     if (!result) {
-        return res
-            .status(404)
-            .json({
+        return res.status(404).json({
             success: false,
-            message: 'Booking failed Please try again !',
-            data: res
+            message: 'room not created',
+            data: res,
         });
     }
     else {
         res.status(200).json({
             success: true,
-            message: 'Request send successfully',
+            message: 'room is created successfully',
             data: result,
         });
     }
 }));
-exports.TableBookingController = {
-    createTableBookingController
+const findAllPromotionRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const language = req.query.lang || 'en';
+    const result = yield promotion_service_1.PromotionRoomService.getAllPromotionRooms(language);
+    if (!result) {
+        return res.status(404).json({
+            success: false,
+            message: 'rooms not found',
+            data: res,
+        });
+    }
+    else {
+        res.status(200).json({
+            success: true,
+            message: 'room is retrieved successfully',
+            data: result,
+        });
+    }
+}));
+exports.PromotionRoomController = {
+    createPromotionRoom,
+    findAllPromotionRooms
 };

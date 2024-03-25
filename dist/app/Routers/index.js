@@ -11,6 +11,7 @@ const category_route_1 = require("../module/category/category.route");
 const review_route_1 = require("../module/review/review.route");
 const contact_route_1 = require("../module/Contact/contact.route");
 const table_rout_1 = require("../module/tableBooking/table.rout");
+const promotion_route_1 = require("../module/promotion/promotion.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -36,6 +37,10 @@ const moduleRoutes = [
     {
         path: '/table-booking',
         route: table_rout_1.TableBookingRoute,
+    },
+    {
+        path: '/promotion',
+        route: promotion_route_1.promotionRoomRoute,
     },
     {
         path: '/booking',
