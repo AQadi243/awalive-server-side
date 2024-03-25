@@ -77,7 +77,45 @@ const createPromotion = async (promotionData: TPromotionRoom) => {
     }
 };
 
+const singlePromoRoom = async (roomId: string, language: string) => {
+  try {
+    const room = await promotionModel.findById(roomId).lean();
+    if (!room) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    }
+
+    // Translate all relevant fields based on the selected language
+    const translatedRoom = {
+      ...room,
+      roomName: room.roomName[language] || room.roomName.en, // Default to English if the language is not available
+      roomImage: room.roomImage, // No translation needed
+      price: room.price,
+      priceHistory: room.priceHistory, // Assuming price history is just a number, no translation needed
+      saleTag: room.saleTag[language] || room.saleTag.en,
+      numberOfGuests: room.numberOfGuests, // Assuming this is just a number array, no translation needed
+      breakfastAvailable: room.breakfastAvailable[language] || room.breakfastAvailable.en,
+      description: room.description[language] || room.description.en,
+      fullDetails: room.fullDetails[language] || room.fullDetails.en,
+      quantity: room.quantity // Assuming this is just a number, no translation needed
+    };
+
+    return translatedRoom;
+
+
+    
+  } catch (err: any) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      `Failed to retrieve the room. ${err.message} `,
+    );
+  }
+};
+
   export const PromotionRoomService = {
     createPromotion,
-    getAllPromotionRooms
+    getAllPromotionRooms,
+    singlePromoRoom
   }

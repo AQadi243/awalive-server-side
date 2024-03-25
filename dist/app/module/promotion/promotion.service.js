@@ -68,7 +68,26 @@ const getAllPromotionRooms = (language) => __awaiter(void 0, void 0, void 0, fun
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to fetch rooms due to an unexpected error ${error.message} `);
     }
 });
+const singlePromoRoom = (roomId, language) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const room = yield promotion_model_1.promotionModel.findById(roomId).lean();
+        if (!room) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        }
+        // Translate all relevant fields based on the selected language
+        const translatedRoom = Object.assign(Object.assign({}, room), { roomName: room.roomName[language] || room.roomName.en, roomImage: room.roomImage, price: room.price, priceHistory: room.priceHistory, saleTag: room.saleTag[language] || room.saleTag.en, numberOfGuests: room.numberOfGuests, breakfastAvailable: room.breakfastAvailable[language] || room.breakfastAvailable.en, description: room.description[language] || room.description.en, fullDetails: room.fullDetails[language] || room.fullDetails.en, quantity: room.quantity // Assuming this is just a number, no translation needed
+         });
+        return translatedRoom;
+    }
+    catch (err) {
+        if (err instanceof AppError_1.default) {
+            throw err;
+        }
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room. ${err.message} `);
+    }
+});
 exports.PromotionRoomService = {
     createPromotion,
-    getAllPromotionRooms
+    getAllPromotionRooms,
+    singlePromoRoom
 };

@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PromotionRoomController = void 0;
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const promotion_service_1 = require("./promotion.service");
+const AppError_1 = __importDefault(require("../../Error/errors/AppError"));
+const http_status_1 = __importDefault(require("http-status"));
 const createPromotionRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //saving to db
     const result = yield promotion_service_1.PromotionRoomService.createPromotion(req.body);
@@ -51,7 +53,21 @@ const findAllPromotionRooms = (0, catchAsync_1.default)((req, res) => __awaiter(
         });
     }
 }));
+const singlePromotionRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const language = req.query.lang || 'en'; // Defaulting language to 'en' if not specified
+    const { roomId } = req.params; // Assuming you're passing the room ID as a URL parameter
+    const room = yield promotion_service_1.PromotionRoomService.singlePromoRoom(roomId, language);
+    if (!room) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found'); // Using AppError for consistent error handling
+    }
+    res.status(http_status_1.default.OK).json({
+        status: 'success',
+        message: 'Room retrieved successfully',
+        data: { room },
+    });
+}));
 exports.PromotionRoomController = {
     createPromotionRoom,
-    findAllPromotionRooms
+    findAllPromotionRooms,
+    singlePromotionRoom
 };

@@ -14,6 +14,7 @@ const router = express.Router()
 // router.post('/create', isAdmin(USER_ROLE.admin), validateRequest(RoomValidationSchema), createRoomController.createRoom )
 router.post('/create', validateRequest(PromotionRoomSchema), PromotionRoomController.createPromotionRoom )
 router.get('/',  PromotionRoomController.findAllPromotionRooms )
+router.get('/:roomId',  PromotionRoomController.singlePromotionRoom )
 
 
 

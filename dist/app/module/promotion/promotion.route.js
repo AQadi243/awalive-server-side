@@ -14,4 +14,5 @@ const router = express_1.default.Router();
 // router.post('/create', isAdmin(USER_ROLE.admin), validateRequest(RoomValidationSchema), createRoomController.createRoom )
 router.post('/create', (0, validateRequest_1.validateRequest)(promotion_validation_1.default), promotion_controller_1.PromotionRoomController.createPromotionRoom);
 router.get('/', promotion_controller_1.PromotionRoomController.findAllPromotionRooms);
+router.get('/:roomId', promotion_controller_1.PromotionRoomController.singlePromotionRoom);
 exports.promotionRoomRoute = router;
