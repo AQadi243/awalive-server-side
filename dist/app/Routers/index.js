@@ -10,6 +10,7 @@ const booking_route_1 = require("../module/booking/booking.route");
 const category_route_1 = require("../module/category/category.route");
 const review_route_1 = require("../module/review/review.route");
 const contact_route_1 = require("../module/Contact/contact.route");
+const table_rout_1 = require("../module/tableBooking/table.rout");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -31,6 +32,10 @@ const moduleRoutes = [
     {
         path: '/contact-message',
         route: contact_route_1.ContactMessageRoute,
+    },
+    {
+        path: '/table-booking',
+        route: table_rout_1.TableBookingRoute,
     },
     {
         path: '/booking',

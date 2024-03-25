@@ -8,6 +8,8 @@ import { bookingRoute } from '../module/booking/booking.route';
 import { CategoryRoute } from '../module/category/category.route';
 import { RoomReviewRoute } from '../module/review/review.route';
 import { ContactMessageRoute } from '../module/Contact/contact.route';
+import { TableBookingRoute } from '../module/tableBooking/table.rout';
+import { promotionRoomRoute } from '../module/promotion/promotion.route';
 
 
 
@@ -35,6 +37,14 @@ const moduleRoutes = [
     {
       path: '/contact-message',
       route: ContactMessageRoute,
+    },
+    {
+      path: '/table-booking',
+      route: TableBookingRoute,
+    },
+    {
+      path: '/promotion',
+      route: promotionRoomRoute,
     },
     {
       path: '/booking',
