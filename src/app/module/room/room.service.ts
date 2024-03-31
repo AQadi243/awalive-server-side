@@ -4,7 +4,7 @@ import { LanguageKey,  TRoom } from './room.interface';
 import { RoomModel } from './room.model';
 import AppError from '../../Error/errors/AppError';
 import httpStatus from 'http-status';
-import { CategoryModel } from '../category/category.model';
+// import { CategoryModel } from '../category/category.model';
 
 // const createRoomInDb = async (roomData: TRoom) => {
 //     const session = await mongoose.startSession();
@@ -45,10 +45,10 @@ const createRoomInDb = async (roomData: TRoom) => {
   session.startTransaction();
   try {
     // Check if the category exists
-    const findCategory = await CategoryModel.findById(roomData.type);
-    if (!findCategory) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Invalid category');
-    }
+    // const findCategory = await CategoryModel.findById(roomData.type);
+    // if (!findCategory) {
+    //   throw new AppError(httpStatus.NOT_FOUND, 'Invalid category');
+    // }
 
     // Ensure that roomData contains multilingual fields
     // (You might want to add more validation based on your requirements)
@@ -68,7 +68,6 @@ const createRoomInDb = async (roomData: TRoom) => {
 
     // Fetch the newly created room with populated type
     const populatedRoom = await RoomModel.findById(room[0]._id)
-      .populate('type')
       .session(session);
 
     await session.commitTransaction();
@@ -84,7 +83,7 @@ const createRoomInDb = async (roomData: TRoom) => {
     }
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'Failed to create room due to an unexpected error. Try again with valid room type.',
+      `Failed to create room due to an unexpected error. Try again with valid room type. ${err.message}` ,
     );
   }
 };
@@ -100,10 +99,11 @@ const createRoomInDb = async (roomData: TRoom) => {
 
 const findAllRoomsFromDb = async (language: LanguageKey) => {
   try {
-    const rooms = await RoomModel.find().populate('type').lean();
+    const rooms = await RoomModel.find().lean();
 
     // Map over each room and construct a new object with the desired structure
     const localizedRooms = rooms.map((room) => ({
+      ...room,
       id: room._id,
       title: room.title[language],
       subTitle: room.subTitle ? {
@@ -114,7 +114,12 @@ const findAllRoomsFromDb = async (language: LanguageKey) => {
       maxGuests: room.maxGuests,
       roomQTY: room.roomQTY,
       size: room.size,
-      features: room.features.map((feature) => feature[language]),
+      // features: room.features.map((feature) => feature.name[language]),
+      // services: room.services.map((service) => service.name[language]),
+      services: room.services.map((service) => ({
+        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+        image: service.image || "Default service image path",
+      })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
@@ -125,27 +130,116 @@ const findAllRoomsFromDb = async (language: LanguageKey) => {
         prepayment: priceOption.prepayment[language],
         refundable: priceOption.refundable,
       })),
-      type: room.type, // Assuming this is already in the desired format
+      // type: room.type, // Assuming this is already in the desired format
     }));
 
     return localizedRooms;
-  } catch (err) {
+  } catch (err: any) {
     // console.error('Error in findAllRoomsFromDb:', err);
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      'Failed to retrieve rooms.',
-    );
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
+  }
+};
+
+const findRegularFromDb = async (language: LanguageKey) => {
+  try {
+    const regularRooms = await RoomModel.find({ tags: { $ne: 'promotion' } }).lean();
+    if(regularRooms.length===0){
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`No promotion Room available now `,);
+    }
+
+    // Map over each room and construct a new object with the desired structure
+    const localizedRooms = regularRooms.map((room) => ({
+      ...room,
+      id: room._id,
+      title: room.title[language],
+      subTitle: room.subTitle ? {
+        roomOne: room.subTitle.roomOne[language],
+        roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
+      } : undefined,
+      description: room.description[language],
+      maxGuests: room.maxGuests,
+      roomQTY: room.roomQTY,
+      size: room.size,
+      // features: room.features.map((feature) => feature.name[language]),
+      // services: room.services.map((service) => service.name[language]),
+      services: room.services.map((service) => ({
+        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+        image: service.image || "Default service image path",
+      })),
+      images: room.images,
+      priceOptions: room.priceOptions.map((priceOption) => ({
+        price: priceOption.price,
+        currency: priceOption.currency[language], // Localize the currency here
+        taxesAndCharges: priceOption.taxesAndCharges,
+        breakfast: priceOption.breakfast[language],
+        cancellation: priceOption.cancellation[language],
+        prepayment: priceOption.prepayment[language],
+        refundable: priceOption.refundable,
+      })),
+      // type: room.type, // Assuming this is already in the desired format
+    }));
+
+    return localizedRooms;
+  } catch (err: any) {
+    // console.error('Error in findAllRoomsFromDb:', err);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
+  }
+};
+
+const findPromotionFromDb = async (language: LanguageKey) => {
+  try {
+    const regularRooms = await RoomModel.find({ tags: 'promotion' }).lean();
+    if(!regularRooms.length){
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`No promotion Room available now `,);
+    }
+    // Map over each room and construct a new object with the desired structure
+    const localizedRooms = regularRooms.map((room) => ({
+      ...room,
+      id: room._id,
+      title: room.title[language],
+      subTitle: room.subTitle ? {
+        roomOne: room.subTitle.roomOne[language],
+        roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
+      } : undefined,
+      description: room.description[language],
+      maxGuests: room.maxGuests,
+      roomQTY: room.roomQTY,
+      size: room.size,
+      // features: room.features.map((feature) => feature.name[language]),
+      // services: room.services.map((service) => service.name[language]),
+      services: room.services.map((service) => ({
+        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+        image: service.image || "Default service image path",
+      })),
+      images: room.images,
+      priceOptions: room.priceOptions.map((priceOption) => ({
+        price: priceOption.price,
+        currency: priceOption.currency[language], // Localize the currency here
+        taxesAndCharges: priceOption.taxesAndCharges,
+        breakfast: priceOption.breakfast[language],
+        cancellation: priceOption.cancellation[language],
+        prepayment: priceOption.prepayment[language],
+        refundable: priceOption.refundable,
+      })),
+      // type: room.type, // Assuming this is already in the desired format
+    }));
+
+    return localizedRooms;
+  } catch (err: any) {
+    // console.error('Error in findAllRoomsFromDb:', err);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
   }
 };
 
 const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
   try {
-    const room = await RoomModel.findById(roomId).populate('type').lean();
+    const room = await RoomModel.findById(roomId).lean();
     if (!room) {
       throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
     }
 
     const localizedRooms = {
+      ...room,
       id: room._id,
       title: room.title[language],
       subTitle: room.subTitle ? {
@@ -156,8 +250,12 @@ const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
       maxGuests: room.maxGuests,
       roomQTY: room.roomQTY,
       size: room.size,
-      features: room.features.map((feature) => feature[language]),
-      services: room.services.map((service) => service[language]),
+      // features: room.features.map((feature) => feature[language]),
+      // services: room.services.map((service) => service.name[language]),
+      services: room.services.map((service) => ({
+        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+        image: service.image || "Default service image path",
+      })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
@@ -168,18 +266,15 @@ const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
         prepayment: priceOption.prepayment[language],
         refundable: priceOption.refundable,
       })),
-      type: room.type, // Assuming this is already in the desired format
+      // type: room.type, // Assuming this is already in the desired format
     };
 
     return localizedRooms;
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof AppError) {
       throw err;
     }
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      'Failed to retrieve the room.',
-    );
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
   }
 };
 
@@ -396,6 +491,7 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
     const availableQty = roomAvailability ? roomAvailability.availableQty : 0;
 
     return {
+      ...room,
       id: room._id,
       title: room.title[language],
       description: room.description[language],
@@ -403,7 +499,8 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
       roomQTY: room.roomQTY,
       availableQty, // include the availableQty
       size: room.size,
-      features: room.features.map(feature => feature[language]),
+      // features: room.features.map(feature => feature[language]),
+      // services: room.services.map((service) => service.name[language]),
       images: room.images,
       priceOptions: room.priceOptions.map(priceOption => ({
         price: priceOption.price,
@@ -414,7 +511,7 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
         prepayment: priceOption.prepayment[language],
         refundable: priceOption.refundable,
       })),
-      type: room.type,
+      // type: room.type,
     };
   });
 
@@ -428,6 +525,8 @@ export const roomService = {
   createRoomInDb,
   findAllRoomsFromDb,
   findSingleRoomFromDb,
+  findRegularFromDb,
+  findPromotionFromDb,
   updateRoomById,
   deleteRoomById,
   // searchService,

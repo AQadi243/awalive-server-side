@@ -15,6 +15,8 @@ router.get('/available', room_conroller_1.createRoomController.availableRoomCont
 // router.get('/search',  createRoomController.searchRoomController)
 router.post('/create', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), (0, validateRequest_1.validateRequest)(room_validation_1.default), room_conroller_1.createRoomController.createRoom);
 router.get('/', room_conroller_1.createRoomController.findAllRooms);
+router.get('/regular', room_conroller_1.createRoomController.findRegularRooms);
+router.get('/promotion', room_conroller_1.createRoomController.findPromotionRooms);
 router.get('/:id', room_conroller_1.createRoomController.singleRoomById);
 router.put('/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.updateSingleRoom);
 router.delete('/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.deleteSingleRoom);

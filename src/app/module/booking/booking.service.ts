@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
-import { TBookingData } from './booking.interface';
+import { BookingWithRoomDetails, TBookingData } from './booking.interface';
 // import BookingModel from './booking.model';
 import AppError from '../../Error/errors/AppError';
 import httpStatus from 'http-status';
@@ -10,7 +10,8 @@ import httpStatus from 'http-status';
 // import { LanguageKey } from '../room/room.interface';
 import { BookingModel } from './booking.model';
 import { sendEmail } from '../../utils/sendEmail';
-import { TRoom } from '../room/room.interface';
+import { LanguageKey, TRoom } from '../room/room.interface';
+// import { RoomModel } from '../room/room.model';
 
 
 const generateRandomBookingNumber = () => {
@@ -174,21 +175,60 @@ const getAllBookings = async () => {
   try {
     const bookings = await BookingModel.find();
     return bookings;
-  } catch (error) {
+  } catch (error:any) {
     // console.error('Error in getAllBookings:', error);
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      'Error retrieving bookings',
+    throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`Error retrieving bookings. ${error.message}` ,
     );
   }
 };
+
+// const getBookingsByEmail = async (email: string, language: string)=>{
+//   try {
+//     const bookedRoom = await BookingModel.find({ userId: email });
+    
+//     if (!bookedRoom) {
+//       throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`No Booking Found.`)
+//     }
+//     const populateRoomDetails = await RoomModel.findById(bookedRoom.).lean()
+//   } catch (error) {
+    
+//   }
+// }
+const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
+  try {
+    const bookedRooms = await BookingModel.find({ userId: email })
+      .populate('roomId', 'title description images priceOptions')
+      .lean() as BookingWithRoomDetails[];
+
+    if (bookedRooms.length === 0) {
+      throw new AppError(httpStatus.NOT_FOUND, `No Booking Found for ${email}`);
+    }
+
+    const localizedBookedRooms = bookedRooms.map(booking => {
+      return {
+        ...booking,
+        roomId: {
+          ...booking.roomId,
+          title: booking.roomId.title[language] || booking.roomId.title.en,
+          description: booking.roomId.description[language] || booking.roomId.description.en,
+          // Handle other fields similarly
+        },
+      };
+    });
+
+    return localizedBookedRooms;
+  } catch (error:any) {
+    throw new AppError(httpStatus.NOT_FOUND, `No Booking Found for ${error.message}`);
+  }
+};
+
 
 
 // const getBookingByEmail = async (email: string, language: LanguageKey) => {
 //   try {
 //     // Cast the result of populate to TBookingsRoom
 //     const bookings = await BookingModel.find({ userEmail: email })
-//       .populate<{ roomId: TPopulatedRoom }>('roomId')
+//       .populate<{ roomId: TPopulatedRoom}>('roomId')
 //       .sort({ createdAt: -1 })
 //       .lean();
 
@@ -253,7 +293,7 @@ const getAllBookings = async () => {
 //   }
 // };
 
-// const getBookingByEmail = async (email: string, language: LanguageKey) => {
+// const getBookingByEmail = async (email: string, language: string) => {
 //   const titleField = 'title[language]';
 //   const descriptionField = `description.${language}`;
 //   const sizeField = `size.${language}`;
@@ -268,10 +308,10 @@ const getAllBookings = async () => {
 //       throw new AppError(httpStatus.NOT_FOUND, 'No bookings found for this email');
 //     }
 //     return bookings;
-//   } catch (error) {
+//   } catch (error: any) {
 //     console.error('Error in getBookingByEmail:', error);
 //     // throw error; // Re-throw the error to handle it in the calling function
-//     throw new AppError(httpStatus.NOT_FOUND, 'Error in getBookingByEmail:')
+//     throw new AppError(httpStatus.NOT_FOUND, `Error in getBookingByEmail: ${error.message}`)
 //   }
 // };
 
@@ -279,5 +319,5 @@ export const bookingService = {
   createBooking,
   getBookingById,
   getAllBookings,
-  // getBookingByEmail,
+  getBookingsByEmail,
 };

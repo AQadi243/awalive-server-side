@@ -9,7 +9,7 @@ import isAdmin from "../../midleware/isAdmin";
 const router = express.Router()
 
 router.get('/',isAdmin( USER_ROLE.admin), createBookingController.getAllBookingRooms )
-// router.get('/:userEmail',isAdmin(USER_ROLE.admin, USER_ROLE.user), createBookingController.getSingleBookedRoom )
+router.get('/:userEmail',isAdmin(USER_ROLE.admin, USER_ROLE.user), createBookingController.getSingleBookedRoom )
 router.get('/:id', createBookingController.getSingleBookedRoomController )
 // router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
 router.post('/', isAdmin( USER_ROLE.admin, USER_ROLE.user),  validateRequest(BookingDataZodSchema), createBookingController.bookingRoom)

@@ -9,7 +9,6 @@ import sendResponse from '../../utils/sendResponse';
 import { LanguageKey, SizeOrder, SortOrder } from './room.interface';
 
 const createRoom = catchAsync(async (req: Request, res: Response) => {
-  
   //saving to db
   const result = await roomService.createRoomInDb(req.body);
 
@@ -41,6 +40,44 @@ const findAllRooms = catchAsync(async (req: Request, res: Response) => {
       message: 'rooms not found',
       data: res,
     });
+  } else {
+    res.status(200).json({
+      success: true,
+      message: 'room is retrieved successfully',
+      data: result,
+    });
+  }
+});
+
+const findRegularRooms = catchAsync(async (req: Request, res: Response) => {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                     ? languageParam 
+                     : 'en'; // Default to 'en' if the parameter is not 'en' or 'ar'
+  const result = await roomService.findRegularFromDb(language);
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    
+  } else {
+    res.status(200).json({
+      success: true,
+      message: 'room is retrieved successfully',
+      data: result,
+    });
+  }
+});
+
+const findPromotionRooms = catchAsync(async (req: Request, res: Response) => {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                     ? languageParam 
+                     : 'en'; // Default to 'en' if the parameter is not 'en' or 'ar'
+  const result = await roomService.findPromotionFromDb(language);
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    
   } else {
     res.status(200).json({
       success: true,
@@ -360,6 +397,8 @@ export const createRoomController = {
   createRoom,
   findAllRooms,
   singleRoomById,
+  findRegularRooms,
+  findPromotionRooms,
   updateSingleRoom,
   deleteSingleRoom,
   // searchRoomController,

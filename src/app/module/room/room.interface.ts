@@ -18,29 +18,22 @@ export type LanguageKey = 'en' | 'ar';
 export type LocalizedString = {
   en: string;
   ar: string;
-  icon: string;
+  
 };
 
 export type PriceOption = {
   price: number;
-  currency: {
-    en: string;
-    ar: string;
-  };
+  currency: LocalizedString;
   taxesAndCharges: string;
-  breakfast: {
-    en: string;
-    ar: string;
-  };
-  cancellation: {
-    en: string;
-    ar: string;
-  };
-  prepayment: {
-    en: string;
-    ar: string;
-  };
+  breakfast: LocalizedString;
+  cancellation: LocalizedString;
+  prepayment: LocalizedString;
   refundable: boolean;
+};
+
+export type RoomService = {
+  name: LocalizedString;
+  image: string;
 };
 
 export type SubTitle = {
@@ -48,16 +41,24 @@ export type SubTitle = {
   roomTwo?: LocalizedString; // Optional
 };
 
+export enum RoomTag {
+  Regular = "regular",
+  Promotion = "promotion",
+}
+
 export type TRoom = {
   title: LocalizedString;
   subTitle: SubTitle;
-  type: mongoose.Schema.Types.ObjectId;
+  // type: mongoose.Schema.Types.ObjectId; 
   description: LocalizedString;
   maxGuests: number;
   roomQTY: number;
   size:  number;
-  features: LocalizedString[];
-  services: LocalizedString[];
+  // features: LocalizedString[];
+  services: RoomService[];
   images: string[];
   priceOptions: PriceOption[];
+  tags: RoomTag[];
+  priceHistory?: number; // Optional previous price for promotional comparison
+  discount?: number;
 };

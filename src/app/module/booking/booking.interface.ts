@@ -1,5 +1,9 @@
 // import mongoose from 'mongoose';
 
+import mongoose from "mongoose";
+import { PriceOption } from "../room/room.interface";
+import { LanguageMap } from "../promotion/promotion.interface";
+
 
 
 export interface GuestData {
@@ -22,8 +26,35 @@ export interface TBookingData {
   numberOfGuests: number;
   paymentType: string;
   roomId: string;
-  userId: string; // Assuming the userId could be a string like an email
+  userId: string ; // Assuming the userId could be a string like an email
 }
+
+
+// implicitly making populate type 
+
+interface RoomDetailsLocalized {
+  _id: mongoose.Types.ObjectId;
+  title: LanguageMap; // Now expecting a simple string after localization
+  description: LanguageMap; // Now expecting a simple string after localization
+  images: string[];
+  priceOptions: PriceOption[];
+}
+
+ export interface BookingWithRoomDetails extends Document {
+  checkIn: Date;
+  checkOut: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  guestData: any; // Adjust to match your actual type
+  numberOfGuests: number;
+  paymentType: string;
+  roomId: RoomDetailsLocalized; // Use the modified RoomDetailsLocalized interface here
+  userId: string;
+  bookingNumber: string;
+  bookingStatus: string;
+  paymentStatus: string;
+}
+
+
 
 
 

@@ -40,97 +40,67 @@ const mongoose_1 = __importStar(require("mongoose"));
 // import { RoomCategory, TRoom } from './room.interface';
 const AppError_1 = __importDefault(require("../../Error/errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-// const priceOptionSchema = new mongoose.Schema({
-//   price: { type: Number, required: [true, 'Price is required'] },
-//   currency: { type: String, required: [true, 'Currency is required'] },
-//   // taxesAndCharges: { type: Number, required: [true, 'Taxes and charges are required'] },
-//   breakfast: { type: String, required: [true, 'Breakfast information is required'] },
-//   cancellation: { type: String, required: [true, 'Cancellation policy is required'] },
-//   prepayment: { type: String, required: [true, 'Prepayment information is required'] },
-//   refundable: { type: Boolean, required: [true, 'Refundable status is required'] },
-// });
-// const roomSchema = new mongoose.Schema({
-//   title: { type: String, required: [true, 'Room title is required'] },
-//   // type: { type: [RoomCategorySchema], required: [true, 'Price options are required'] },
-//   type: {
-//     type: Schema.Types.ObjectId,
-//     ref: 'Category',
-//     required: true,
-// },
-//   description: { type: String, required: [true, 'Room description is required'] },
-//   maxGuests: { type: Number, required: [true, 'Maximum number of guests is required'] },
-//   roomQTY: { type: Number, required: [true, 'Room quantity is required'] },
-//   size: { type: String, required: [true, 'Room size is required'] },
-//   features: { type: [{ type: String, required: true }], required: [true, 'Room features are required'] },
-//   images: { type: [{ type: String, required: true }], required: [true, 'Room images are required'] },
-//   priceOptions: { type: [priceOptionSchema], required: [true, 'Price options are required'] },
-//   isDeleted: { type: Boolean, default: false },
-//   isActive: { type: Boolean, default: true },
-// }, { timestamps: true });\
-const localizedFeatureSchema = new mongoose_1.default.Schema({
+const localizedSchema = new mongoose_1.default.Schema({
     en: { type: String, required: true },
     ar: { type: String, required: true },
-    icon: { type: String }
-});
+    // icon: { type: String }
+}, { _id: false });
 const priceOptionSchema = new mongoose_1.default.Schema({
     price: { type: Number, required: [true, 'Price is required'] },
-    currency: {
-        en: { type: String, required: [true, 'English Currency is required'] },
-        ar: { type: String, required: [true, 'Arabic Currency is required'] }
+    currency: localizedSchema,
+    taxesAndCharges: {
+        type: String,
+        required: [true, 'Taxes and charges are required'],
     },
-    taxesAndCharges: { type: String, required: [true, 'Taxes and charges are required'] },
-    breakfast: {
-        en: { type: String, required: [true, 'English breakfast information is required'] },
-        ar: { type: String, required: [true, 'Arabic breakfast information is required'] }
+    breakfast: localizedSchema,
+    cancellation: localizedSchema,
+    prepayment: localizedSchema,
+    refundable: {
+        type: Boolean,
+        required: [true, 'Refundable status is required'],
     },
-    cancellation: {
-        en: { type: String, required: [true, 'English cancellation policy is required'] },
-        ar: { type: String, required: [true, 'Arabic cancellation policy is required'] }
-    },
-    prepayment: {
-        en: { type: String, required: [true, 'English prepayment information is required'] },
-        ar: { type: String, required: [true, 'Arabic prepayment information is required'] }
-    },
-    refundable: { type: Boolean, required: [true, 'Refundable status is required'] },
-});
+}, { _id: false });
+const RoomService = new mongoose_1.default.Schema({
+    name: localizedSchema,
+    image: { type: String, required: [true, 'service image are required'] },
+}, { _id: false });
 const roomSchema = new mongoose_1.default.Schema({
-    title: {
-        en: { type: String, required: [true, 'English room title is required'] },
-        ar: { type: String, required: [true, 'Arabic room title is required'] }
-    },
+    title: localizedSchema,
     subTitle: {
-        roomOne: {
-            en: { type: String, required: [true, 'English subtitle for room one is required'] },
-            ar: { type: String, required: [true, 'Arabic subtitle for room one is required'] }
-        },
-        roomTwo: {
-            en: { type: String, required: false },
-            ar: { type: String, required: false }
-        }
+        roomOne: localizedSchema,
+        roomTwo: localizedSchema,
     },
     description: {
-        en: { type: String, required: [true, 'English room description is required'] },
-        ar: { type: String, required: [true, 'Arabic room description is required'] }
+        en: {
+            type: String,
+            required: [true, 'English room description is required'],
+        },
+        ar: {
+            type: String,
+            required: [true, 'Arabic room description is required'],
+        },
     },
-    maxGuests: { type: Number, required: [true, 'Maximum number of guests is required'] },
+    maxGuests: {
+        type: Number,
+        required: [true, 'Maximum number of guests is required'],
+    },
     roomQTY: { type: Number, required: [true, 'Room quantity is required'] },
     size: { type: Number, required: [true, 'size is required'] },
-    // size: {
-    //   en: { type: String, required: [true, 'English room size is required'] },
-    //   ar: { type: String, required: [true, 'Arabic room size is required'] }
-    // },
-    features: [localizedFeatureSchema],
-    services: [localizedFeatureSchema],
-    images: { type: [{ type: String, required: true }], required: [true, 'Room images are required'] },
-    priceOptions: { type: [priceOptionSchema], required: [true, 'Price options are required'] },
+    services: [RoomService],
+    images: {
+        type: [{ type: String, required: true }],
+        required: [true, 'Room images are required'],
+    },
+    priceOptions: {
+        type: [priceOptionSchema],
+        required: [true, 'Price options are required'],
+    },
     isDeleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-    type: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true,
-    }
-}, { timestamps: true, });
+    tags: [{ type: String }],
+    priceHistory: Number,
+    discount: Number,
+}, { timestamps: true });
 roomSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         // console.log(`Checking for existing room with type: ${this.type}, maxGuests: ${this.maxGuests}`);
@@ -145,5 +115,22 @@ roomSchema.pre('save', function (next) {
         }
         next();
     });
+});
+roomSchema.pre('save', function (next) {
+    if (typeof this.priceHistory === 'number' && this.priceOptions && this.priceOptions.length > 0) {
+        const currentPrice = this.priceOptions[0].price;
+        if (currentPrice < this.priceHistory && this.priceHistory > 0) {
+            const discount = ((this.priceHistory - currentPrice) / this.priceHistory) * 100;
+            // Round the discount to no decimal places
+            this.discount = Math.round(discount);
+        }
+        else {
+            this.discount = 0;
+        }
+    }
+    else {
+        this.discount = 0;
+    }
+    next();
 });
 exports.RoomModel = (0, mongoose_1.model)('Room', roomSchema);

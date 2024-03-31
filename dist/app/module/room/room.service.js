@@ -18,7 +18,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const room_model_1 = require("./room.model");
 const AppError_1 = __importDefault(require("../../Error/errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-const category_model_1 = require("../category/category.model");
+// import { CategoryModel } from '../category/category.model';
 // const createRoomInDb = async (roomData: TRoom) => {
 //     const session = await mongoose.startSession();
 //     session.startTransaction();
@@ -54,10 +54,10 @@ const createRoomInDb = (roomData) => __awaiter(void 0, void 0, void 0, function*
     session.startTransaction();
     try {
         // Check if the category exists
-        const findCategory = yield category_model_1.CategoryModel.findById(roomData.type);
-        if (!findCategory) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Invalid category');
-        }
+        // const findCategory = await CategoryModel.findById(roomData.type);
+        // if (!findCategory) {
+        //   throw new AppError(httpStatus.NOT_FOUND, 'Invalid category');
+        // }
         // Ensure that roomData contains multilingual fields
         // (You might want to add more validation based on your requirements)
         if (!roomData.title.en || !roomData.title.ar) {
@@ -70,7 +70,6 @@ const createRoomInDb = (roomData) => __awaiter(void 0, void 0, void 0, function*
         }
         // Fetch the newly created room with populated type
         const populatedRoom = yield room_model_1.RoomModel.findById(room[0]._id)
-            .populate('type')
             .session(session);
         yield session.commitTransaction();
         yield session.endSession();
@@ -83,7 +82,7 @@ const createRoomInDb = (roomData) => __awaiter(void 0, void 0, void 0, function*
         if (err instanceof AppError_1.default) {
             throw err;
         }
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create room due to an unexpected error. Try again with valid room type.');
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Failed to create room due to an unexpected error. Try again with valid room type. ${err.message}`);
     }
 });
 // const findAllRoomsFromDb = async () => {
@@ -96,22 +95,18 @@ const createRoomInDb = (roomData) => __awaiter(void 0, void 0, void 0, function*
 // };
 const findAllRoomsFromDb = (language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const rooms = yield room_model_1.RoomModel.find().populate('type').lean();
+        const rooms = yield room_model_1.RoomModel.find().lean();
         // Map over each room and construct a new object with the desired structure
-        const localizedRooms = rooms.map((room) => ({
-            id: room._id,
-            title: room.title[language],
-            subTitle: room.subTitle ? {
+        const localizedRooms = rooms.map((room) => (Object.assign(Object.assign({}, room), { id: room._id, title: room.title[language], subTitle: room.subTitle ? {
                 roomOne: room.subTitle.roomOne[language],
                 roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
-            } : undefined,
-            description: room.description[language],
-            maxGuests: room.maxGuests,
-            roomQTY: room.roomQTY,
-            size: room.size,
-            features: room.features.map((feature) => feature[language]),
-            images: room.images,
-            priceOptions: room.priceOptions.map((priceOption) => ({
+            } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
+            // features: room.features.map((feature) => feature.name[language]),
+            // services: room.services.map((service) => service.name[language]),
+            services: room.services.map((service) => ({
+                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+                image: service.image || "Default service image path",
+            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
                 currency: priceOption.currency[language], // Localize the currency here
                 taxesAndCharges: priceOption.taxesAndCharges,
@@ -119,37 +114,31 @@ const findAllRoomsFromDb = (language) => __awaiter(void 0, void 0, void 0, funct
                 cancellation: priceOption.cancellation[language],
                 prepayment: priceOption.prepayment[language],
                 refundable: priceOption.refundable,
-            })),
-            type: room.type, // Assuming this is already in the desired format
-        }));
+            })) })));
         return localizedRooms;
     }
     catch (err) {
         // console.error('Error in findAllRoomsFromDb:', err);
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to retrieve rooms.');
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
     }
 });
-const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, void 0, function* () {
+const findRegularFromDb = (language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const room = yield room_model_1.RoomModel.findById(roomId).populate('type').lean();
-        if (!room) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        const regularRooms = yield room_model_1.RoomModel.find({ tags: { $ne: 'promotion' } }).lean();
+        if (regularRooms.length === 0) {
+            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `No promotion Room available now `);
         }
-        const localizedRooms = {
-            id: room._id,
-            title: room.title[language],
-            subTitle: room.subTitle ? {
+        // Map over each room and construct a new object with the desired structure
+        const localizedRooms = regularRooms.map((room) => (Object.assign(Object.assign({}, room), { id: room._id, title: room.title[language], subTitle: room.subTitle ? {
                 roomOne: room.subTitle.roomOne[language],
                 roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
-            } : undefined,
-            description: room.description[language],
-            maxGuests: room.maxGuests,
-            roomQTY: room.roomQTY,
-            size: room.size,
-            features: room.features.map((feature) => feature[language]),
-            services: room.services.map((service) => service[language]),
-            images: room.images,
-            priceOptions: room.priceOptions.map((priceOption) => ({
+            } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
+            // features: room.features.map((feature) => feature.name[language]),
+            // services: room.services.map((service) => service.name[language]),
+            services: room.services.map((service) => ({
+                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+                image: service.image || "Default service image path",
+            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
                 currency: priceOption.currency[language], // Localize the currency here
                 taxesAndCharges: priceOption.taxesAndCharges,
@@ -157,16 +146,77 @@ const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, voi
                 cancellation: priceOption.cancellation[language],
                 prepayment: priceOption.prepayment[language],
                 refundable: priceOption.refundable,
-            })),
-            type: room.type, // Assuming this is already in the desired format
-        };
+            })) })));
+        return localizedRooms;
+    }
+    catch (err) {
+        // console.error('Error in findAllRoomsFromDb:', err);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
+    }
+});
+const findPromotionFromDb = (language) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const regularRooms = yield room_model_1.RoomModel.find({ tags: 'promotion' }).lean();
+        if (!regularRooms.length) {
+            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `No promotion Room available now `);
+        }
+        // Map over each room and construct a new object with the desired structure
+        const localizedRooms = regularRooms.map((room) => (Object.assign(Object.assign({}, room), { id: room._id, title: room.title[language], subTitle: room.subTitle ? {
+                roomOne: room.subTitle.roomOne[language],
+                roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
+            } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
+            // features: room.features.map((feature) => feature.name[language]),
+            // services: room.services.map((service) => service.name[language]),
+            services: room.services.map((service) => ({
+                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+                image: service.image || "Default service image path",
+            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+                price: priceOption.price,
+                currency: priceOption.currency[language], // Localize the currency here
+                taxesAndCharges: priceOption.taxesAndCharges,
+                breakfast: priceOption.breakfast[language],
+                cancellation: priceOption.cancellation[language],
+                prepayment: priceOption.prepayment[language],
+                refundable: priceOption.refundable,
+            })) })));
+        return localizedRooms;
+    }
+    catch (err) {
+        // console.error('Error in findAllRoomsFromDb:', err);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
+    }
+});
+const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const room = yield room_model_1.RoomModel.findById(roomId).lean();
+        if (!room) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        }
+        const localizedRooms = Object.assign(Object.assign({}, room), { id: room._id, title: room.title[language], subTitle: room.subTitle ? {
+                roomOne: room.subTitle.roomOne[language],
+                roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
+            } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
+            // features: room.features.map((feature) => feature[language]),
+            // services: room.services.map((service) => service.name[language]),
+            services: room.services.map((service) => ({
+                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+                image: service.image || "Default service image path",
+            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+                price: priceOption.price,
+                currency: priceOption.currency[language], // Localize the currency here
+                taxesAndCharges: priceOption.taxesAndCharges,
+                breakfast: priceOption.breakfast[language],
+                cancellation: priceOption.cancellation[language],
+                prepayment: priceOption.prepayment[language],
+                refundable: priceOption.refundable,
+            })) });
         return localizedRooms;
     }
     catch (err) {
         if (err instanceof AppError_1.default) {
             throw err;
         }
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to retrieve the room.');
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
     }
 });
 const updateRoomById = (roomId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -339,17 +389,10 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
         // Find the corresponding availableQty for this room
         const roomAvailability = availableRooms.find(ar => ar._id.equals(room._id));
         const availableQty = roomAvailability ? roomAvailability.availableQty : 0;
-        return {
-            id: room._id,
-            title: room.title[language],
-            description: room.description[language],
-            maxGuests: room.maxGuests,
-            roomQTY: room.roomQTY,
-            availableQty, // include the availableQty
-            size: room.size,
-            features: room.features.map(feature => feature[language]),
-            images: room.images,
-            priceOptions: room.priceOptions.map(priceOption => ({
+        return Object.assign(Object.assign({}, room), { id: room._id, title: room.title[language], description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, availableQty, size: room.size, 
+            // features: room.features.map(feature => feature[language]),
+            // services: room.services.map((service) => service.name[language]),
+            images: room.images, priceOptions: room.priceOptions.map(priceOption => ({
                 price: priceOption.price,
                 currency: priceOption.currency[language],
                 taxesAndCharges: priceOption.taxesAndCharges,
@@ -357,9 +400,7 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
                 cancellation: priceOption.cancellation[language],
                 prepayment: priceOption.prepayment[language],
                 refundable: priceOption.refundable,
-            })),
-            type: room.type,
-        };
+            })) });
     });
     return localizedRooms;
     // return availableRooms;
@@ -368,6 +409,8 @@ exports.roomService = {
     createRoomInDb,
     findAllRoomsFromDb,
     findSingleRoomFromDb,
+    findRegularFromDb,
+    findPromotionFromDb,
     updateRoomById,
     deleteRoomById,
     // searchService,
