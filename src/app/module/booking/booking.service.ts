@@ -195,14 +195,41 @@ const getAllBookings = async () => {
 //   }
 // }
 const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
+  const session = await mongoose.startSession(); // Start a session for transaction
+  session.startTransaction(); // Start the transaction
+
+
   try {
     const bookedRooms = await BookingModel.find({ userId: email })
       .populate('roomId', 'title description images priceOptions')
+      .sort({ createdAt: -1 })
       .lean() as BookingWithRoomDetails[];
 
     if (bookedRooms.length === 0) {
       throw new AppError(httpStatus.NOT_FOUND, `No Booking Found for ${email}`);
     }
+
+    const updates: any[] = []; // Array to hold update promises
+
+    bookedRooms.forEach(booking => {
+      // Check if booking status should be updated to 'completed'
+      if (new Date(booking.checkOut).getTime() < Date.now() && booking.bookingStatus !== 'completed') {
+        // Push the update promise into the updates array
+        updates.push(
+          BookingModel.updateOne(
+            { _id: booking._id },
+            { $set: { bookingStatus: 'completed' } },
+            { session } // Use session for transaction
+          )
+        );
+      }
+    });
+
+    // Wait for all updates to complete
+    await Promise.all(updates);
+
+    // If all updates succeed, commit the transaction
+    await session.commitTransaction();
 
     const localizedBookedRooms = bookedRooms.map(booking => {
       return {
@@ -218,7 +245,11 @@ const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
 
     return localizedBookedRooms;
   } catch (error:any) {
-    throw new AppError(httpStatus.NOT_FOUND, `No Booking Found for ${error.message}`);
+    // If an error occurs, abort the transaction
+    await session.abortTransaction();
+    throw new AppError(httpStatus.NOT_FOUND, `Error updating bookings: ${error.message}`);
+  } finally {
+    session.endSession();
   }
 };
 

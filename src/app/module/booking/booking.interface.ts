@@ -41,6 +41,8 @@ interface RoomDetailsLocalized {
 }
 
  export interface BookingWithRoomDetails extends Document {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _id: any;
   checkIn: Date;
   checkOut: Date;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

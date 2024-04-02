@@ -179,20 +179,41 @@ const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
 //   }
 // }
 const getBookingsByEmail = (email, language) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield mongoose_1.default.startSession(); // Start a session for transaction
+    session.startTransaction(); // Start the transaction
     try {
         const bookedRooms = yield booking_model_1.BookingModel.find({ userId: email })
             .populate('roomId', 'title description images priceOptions')
+            .sort({ createdAt: -1 })
             .lean();
         if (bookedRooms.length === 0) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, `No Booking Found for ${email}`);
         }
+        const updates = []; // Array to hold update promises
+        bookedRooms.forEach(booking => {
+            // Check if booking status should be updated to 'completed'
+            if (new Date(booking.checkOut).getTime() < Date.now() && booking.bookingStatus !== 'completed') {
+                // Push the update promise into the updates array
+                updates.push(booking_model_1.BookingModel.updateOne({ _id: booking._id }, { $set: { bookingStatus: 'completed' } }, { session } // Use session for transaction
+                ));
+            }
+        });
+        // Wait for all updates to complete
+        yield Promise.all(updates);
+        // If all updates succeed, commit the transaction
+        yield session.commitTransaction();
         const localizedBookedRooms = bookedRooms.map(booking => {
             return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }) });
         });
         return localizedBookedRooms;
     }
     catch (error) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, `No Booking Found for ${error.message}`);
+        // If an error occurs, abort the transaction
+        yield session.abortTransaction();
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, `Error updating bookings: ${error.message}`);
+    }
+    finally {
+        session.endSession();
     }
 });
 // const getBookingByEmail = async (email: string, language: LanguageKey) => {
