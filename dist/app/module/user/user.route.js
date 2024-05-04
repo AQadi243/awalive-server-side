@@ -14,7 +14,7 @@ const router = express_1.default.Router();
 router.get('/', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), user_controller_1.createUserController.allUsers);
 router.get('/:userId', user_controller_1.createUserController.singleUserById);
 router.put('/:userId', user_controller_1.createUserController.updateSingleUser);
-router.post('/', (0, validateRequest_1.validateRequest)(user_validation_1.default), user_controller_1.createUserController.createUser);
+router.post('/create/admin', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), (0, validateRequest_1.validateRequest)(user_validation_1.default), user_controller_1.createUserController.createUser);
 router.delete('/:userId', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), user_controller_1.createUserController.deleteSingleUser);
 // router.get('/users/:userId/orders/total-price', createUserController.getOrderTotalPrice)
 // router.get('/users/:userId/orders', createUserController.getSingleUserOrder)

@@ -58,6 +58,27 @@ const findAllRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         });
     }
 }));
+const AdminRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
+        ? languageParam
+        : 'en'; // Default to 'en' if the parameter is not 'en' or 'ar'
+    const result = yield room_service_1.roomService.findAllRoomsForAdmin(language);
+    if (!result) {
+        return res.status(404).json({
+            success: false,
+            message: 'rooms not found',
+            data: res,
+        });
+    }
+    else {
+        res.status(200).json({
+            success: true,
+            message: 'room is retrieved successfully',
+            data: result,
+        });
+    }
+}));
 const findRegularRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const languageParam = req.query.lang;
     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
@@ -357,6 +378,7 @@ exports.createRoomController = {
     findPromotionRooms,
     updateSingleRoom,
     deleteSingleRoom,
+    AdminRooms,
     // searchRoomController,
     availableRoomController
 };

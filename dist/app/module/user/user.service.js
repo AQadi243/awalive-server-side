@@ -38,7 +38,6 @@ const createUserInDb = (userData) => __awaiter(void 0, void 0, void 0, function*
         // const result = await user.save()
         // Check if a user with the same email already exists
         const existingUser = yield user_model_1.UserModel.findOne({ email: userData.email });
-        console.log(existingUser, 'aksdjjas');
         if (existingUser) {
             if (existingUser.isDeleted === true) {
                 throw new Error('This email is associated with a deleted account. Please contact admin for account recovery.');

@@ -34,7 +34,6 @@ const config_1 = __importDefault(require("../../config"));
 // import { UserModel } from "../user/user.model";
 // import userValidationSchemaZod from "./user.validation";
 const resister = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     const user = req.body;
     //saving to db
     const result = yield auth_service_1.authUserService.register(user);
