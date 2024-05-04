@@ -49,6 +49,28 @@ const findAllRooms = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+const AdminRooms = catchAsync(async (req: Request, res: Response) => {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                     ? languageParam 
+                     : 'en'; // Default to 'en' if the parameter is not 'en' or 'ar'
+  const result = await roomService.findAllRoomsForAdmin(language);
+
+  if (!result) {
+    return res.status(404).json({
+      success: false,
+      message: 'rooms not found',
+      data: res,
+    });
+  } else {
+    res.status(200).json({
+      success: true,
+      message: 'room is retrieved successfully',
+      data: result,
+    });
+  }
+});
+
 const findRegularRooms = catchAsync(async (req: Request, res: Response) => {
     const languageParam = req.query.lang;
     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
@@ -401,6 +423,7 @@ export const createRoomController = {
   findPromotionRooms,
   updateSingleRoom,
   deleteSingleRoom,
+  AdminRooms,
   // searchRoomController,
   availableRoomController
 };

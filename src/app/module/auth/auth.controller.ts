@@ -11,7 +11,7 @@ import config from '../../config';
 // import userValidationSchemaZod from "./user.validation";
 
 const resister = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.body);
+  
   const user = req.body;
 
   //saving to db

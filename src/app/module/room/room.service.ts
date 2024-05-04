@@ -99,6 +99,49 @@ const createRoomInDb = async (roomData: TRoom) => {
 
 const findAllRoomsFromDb = async (language: LanguageKey) => {
   try {
+    const rooms = await RoomModel.find({isDeleted:false}).lean();
+
+    // Map over each room and construct a new object with the desired structure
+    const localizedRooms = rooms.map((room) => ({
+      ...room,
+      id: room._id,
+      title: room.title[language],
+      subTitle: room.subTitle ? {
+        roomOne: room.subTitle.roomOne[language],
+        roomTwo: room.subTitle.roomTwo ? room.subTitle.roomTwo[language] : undefined,
+      } : undefined,
+      description: room.description[language],
+      maxGuests: room.maxGuests,
+      roomQTY: room.roomQTY,
+      size: room.size,
+      // features: room.features.map((feature) => feature.name[language]),
+      // services: room.services.map((service) => service.name[language]),
+      services: room.services.map((service) => ({
+        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+        image: service.image || "Default service image path",
+      })),
+      images: room.images,
+      priceOptions: room.priceOptions.map((priceOption) => ({
+        price: priceOption.price,
+        currency: priceOption.currency[language], // Localize the currency here
+        taxesAndCharges: priceOption.taxesAndCharges,
+        breakfast: priceOption.breakfast[language],
+        cancellation: priceOption.cancellation[language],
+        prepayment: priceOption.prepayment[language],
+        refundable: priceOption.refundable,
+      })),
+      // type: room.type, // Assuming this is already in the desired format
+    }));
+
+    return localizedRooms;
+  } catch (err: any) {
+    // console.error('Error in findAllRoomsFromDb:', err);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
+  }
+};
+
+const findAllRoomsForAdmin = async (language: LanguageKey) => {
+  try {
     const rooms = await RoomModel.find().lean();
 
     // Map over each room and construct a new object with the desired structure
@@ -142,7 +185,7 @@ const findAllRoomsFromDb = async (language: LanguageKey) => {
 
 const findRegularFromDb = async (language: LanguageKey) => {
   try {
-    const regularRooms = await RoomModel.find({ tags: { $ne: 'promotion' } }).lean();
+    const regularRooms = await RoomModel.find({ tags: { $ne: 'promotion' },isDeleted:false  }).lean();
     if(regularRooms.length===0){
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`No promotion Room available now `,);
     }
@@ -188,7 +231,7 @@ const findRegularFromDb = async (language: LanguageKey) => {
 
 const findPromotionFromDb = async (language: LanguageKey) => {
   try {
-    const regularRooms = await RoomModel.find({ tags: 'promotion' }).lean();
+    const regularRooms = await RoomModel.find({ tags: 'promotion',isDeleted:false  }).lean();
     if(!regularRooms.length){
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`No promotion Room available now `,);
     }
@@ -529,6 +572,7 @@ export const roomService = {
   findPromotionFromDb,
   updateRoomById,
   deleteRoomById,
+  findAllRoomsForAdmin,
   // searchService,
   checkAllRoomAvailability,
 };

@@ -15,7 +15,6 @@ const createUserInDb = async (userData: TUser) => {
     // const result = await user.save()
     // Check if a user with the same email already exists
     const existingUser = await UserModel.findOne({ email: userData.email });
-    console.log(existingUser,'aksdjjas');
 
     if (existingUser) {
       if (existingUser.isDeleted=== true) {
