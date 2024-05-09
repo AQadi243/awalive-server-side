@@ -116,19 +116,19 @@ const findAllRoomsFromDb = async (language: LanguageKey) => {
       size: room.size,
       // features: room.features.map((feature) => feature.name[language]),
       // services: room.services.map((service) => service.name[language]),
-      services: room.services.map((service) => ({
-        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-        image: service.image || "Default service image path",
-      })),
+      // services: room.services.map((service) => ({
+      //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+      //   image: service.image || "Default service image path",
+      // })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
-        currency: priceOption.currency[language], // Localize the currency here
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption.currency[language], // Localize the currency here
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type, // Assuming this is already in the desired format
     }));
@@ -159,19 +159,19 @@ const findAllRoomsForAdmin = async (language: LanguageKey) => {
       size: room.size,
       // features: room.features.map((feature) => feature.name[language]),
       // services: room.services.map((service) => service.name[language]),
-      services: room.services.map((service) => ({
-        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-        image: service.image || "Default service image path",
-      })),
+      // services: room.services.map((service) => ({
+      //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+      //   image: service.image || "Default service image path",
+      // })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
-        currency: priceOption.currency[language], // Localize the currency here
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption.currency[language], // Localize the currency here
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type, // Assuming this is already in the desired format
     }));
@@ -205,19 +205,19 @@ const findRegularFromDb = async (language: LanguageKey) => {
       size: room.size,
       // features: room.features.map((feature) => feature.name[language]),
       // services: room.services.map((service) => service.name[language]),
-      services: room.services.map((service) => ({
-        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-        image: service.image || "Default service image path",
-      })),
+      // services: room.services.map((service) => ({
+      //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+      //   image: service.image || "Default service image path",
+      // })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
-        currency: priceOption.currency[language], // Localize the currency here
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption.currency[language], // Localize the currency here
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type, // Assuming this is already in the desired format
     }));
@@ -250,19 +250,19 @@ const findPromotionFromDb = async (language: LanguageKey) => {
       size: room.size,
       // features: room.features.map((feature) => feature.name[language]),
       // services: room.services.map((service) => service.name[language]),
-      services: room.services.map((service) => ({
-        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-        image: service.image || "Default service image path",
-      })),
+      // services: room.services.map((service) => ({
+      //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+      //   image: service.image || "Default service image path",
+      // })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
-        currency: priceOption.currency[language], // Localize the currency here
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption?.currency[language], // Localize the currency here
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type, // Assuming this is already in the desired format
     }));
@@ -295,19 +295,19 @@ const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
       size: room.size,
       // features: room.features.map((feature) => feature[language]),
       // services: room.services.map((service) => service.name[language]),
-      services: room.services.map((service) => ({
-        name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-        image: service.image || "Default service image path",
-      })),
+      // services: room.services.map((service) => ({
+      //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+      //   image: service.image || "Default service image path",
+      // })),
       images: room.images,
       priceOptions: room.priceOptions.map((priceOption) => ({
         price: priceOption.price,
-        currency: priceOption.currency[language], // Localize the currency here
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption.currency[language], // Localize the currency here
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type, // Assuming this is already in the desired format
     };
@@ -547,12 +547,12 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
       images: room.images,
       priceOptions: room.priceOptions.map(priceOption => ({
         price: priceOption.price,
-        currency: priceOption.currency[language],
-        taxesAndCharges: priceOption.taxesAndCharges,
-        breakfast: priceOption.breakfast[language],
-        cancellation: priceOption.cancellation[language],
-        prepayment: priceOption.prepayment[language],
-        refundable: priceOption.refundable,
+        // currency: priceOption.currency[language],
+        // taxesAndCharges: priceOption.taxesAndCharges,
+        // breakfast: priceOption.breakfast[language],
+        // cancellation: priceOption.cancellation[language],
+        // prepayment: priceOption.prepayment[language],
+        // refundable: priceOption.refundable,
       })),
       // type: room.type,
     };

@@ -23,12 +23,12 @@ export type LocalizedString = {
 
 export type PriceOption = {
   price: number;
-  currency: LocalizedString;
-  taxesAndCharges: string;
-  breakfast: LocalizedString;
-  cancellation: LocalizedString;
-  prepayment: LocalizedString;
-  refundable: boolean;
+  currency?: LocalizedString;
+  taxesAndCharges?: string;
+  breakfast?: LocalizedString;
+  cancellation?: LocalizedString;
+  prepayment?: LocalizedString;
+  refundable?: boolean;
 };
 
 export type RoomService = {

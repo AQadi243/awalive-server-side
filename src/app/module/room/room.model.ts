@@ -17,21 +17,19 @@ const priceOptionSchema = new mongoose.Schema({
   currency: localizedSchema,
   taxesAndCharges: {
     type: String,
-    required: [true, 'Taxes and charges are required'],
   },
   breakfast: localizedSchema,
   cancellation: localizedSchema,
   prepayment: localizedSchema,
   refundable: {
     type: Boolean,
-    required: [true, 'Refundable status is required'],
   },
 }, { _id: false });
 
-const RoomService = new mongoose.Schema({
-  name: localizedSchema,
-  image: { type: String, required: [true, 'service image are required'] },
-}, { _id: false });
+// const RoomService = new mongoose.Schema({
+//   name: localizedSchema,
+//   image: { type: String, required: [true, 'service image are required'] },
+// }, { _id: false });
 
 const roomSchema = new mongoose.Schema(
   {
@@ -58,7 +56,7 @@ const roomSchema = new mongoose.Schema(
     roomQTY: { type: Number, required: [true, 'Room quantity is required'] },
     size: { type: Number, required: [true, 'size is required'] },
     
-    services: [RoomService],
+    // services: [RoomService],
 
     images: {
       type: [{ type: String, required: true }],
@@ -70,7 +68,7 @@ const roomSchema = new mongoose.Schema(
     },
     isDeleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-    tags: [{ type: String }],
+    tags: { type: String, required: [true, 'tags is required']  },
     priceHistory: Number,
     discount: Number,
   },
