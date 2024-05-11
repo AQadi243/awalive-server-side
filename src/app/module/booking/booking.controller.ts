@@ -26,7 +26,7 @@ const bookingRoom = catchAsync(async (req: Request, res: Response) => {
 const getSingleBookedRoomController = catchAsync(async (req: Request, res: Response) => {
   // console.log(req.body);
   const {id} = req.params;
-  //  console.log(req.user);
+  //  console.log(id);
   const bookedRoom = await bookingService.getBookingById(id);
 
   if (!bookedRoom) {
@@ -42,10 +42,14 @@ const getSingleBookedRoomController = catchAsync(async (req: Request, res: Respo
 });
 
 const getAllBookingRooms = catchAsync(async (req: Request, res: Response) => {
+  const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                     ? languageParam 
+                     : 'en';
   // console.log(req.body);
   // const bookingData = req.body;
   //  console.log(req.user);
-  const result = await bookingService.getAllBookings();
+  const result = await bookingService.getAllBookings(language);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'OPPS No Room booked');

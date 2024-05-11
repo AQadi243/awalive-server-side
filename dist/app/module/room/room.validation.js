@@ -8,22 +8,23 @@ const LocalizedStringValidationSchema = zod_1.z.object({
 });
 const PriceOptionValidationSchema = zod_1.z.object({
     price: zod_1.z.number({ required_error: 'Price is required' }),
-    currency: LocalizedStringValidationSchema,
-    taxesAndCharges: zod_1.z.string({ required_error: 'Taxes and charges are required' }),
-    breakfast: LocalizedStringValidationSchema,
-    cancellation: LocalizedStringValidationSchema,
-    prepayment: LocalizedStringValidationSchema,
-    refundable: zod_1.z.boolean({ required_error: 'Refundable status is required' }),
+    currency: LocalizedStringValidationSchema.optional(),
+    taxesAndCharges: zod_1.z.string({ required_error: 'Taxes and charges are required' }).optional(),
+    breakfast: LocalizedStringValidationSchema.optional(),
+    cancellation: LocalizedStringValidationSchema.optional(),
+    prepayment: LocalizedStringValidationSchema.optional(),
+    refundable: zod_1.z.boolean({ required_error: 'Refundable status is required' }).optional(),
 });
 const SubTitleValidationSchema = zod_1.z.object({
     roomOne: LocalizedStringValidationSchema,
     roomTwo: LocalizedStringValidationSchema.optional(),
 });
-const RoomServiceSchema = zod_1.z.object({
-    name: LocalizedStringValidationSchema,
-    image: zod_1.z.string(),
-});
-const RoomTag = zod_1.z.enum(["regular", "promotion"]);
+// const RoomServiceSchema = z.object({
+//   name: LocalizedStringValidationSchema,
+//   image: z.string(),
+// });
+// const RoomTag = z.string({ required_error: 'Room Type Tag is required' });
+// const RoomTag = z.enum(["regular", "promotion"]);
 const RoomValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
         title: LocalizedStringValidationSchema,
@@ -34,10 +35,11 @@ const RoomValidationSchema = zod_1.z.object({
         roomQTY: zod_1.z.number({ required_error: 'Room quantity is required' }),
         size: zod_1.z.number({ required_error: 'Size is required' }),
         // features: z.array(LocalizedStringValidationSchema),
-        services: zod_1.z.array(RoomServiceSchema),
+        // services: z.array(RoomServiceSchema),
         images: zod_1.z.array(zod_1.z.string({ required_error: 'At least one image URL must be specified' })),
         priceOptions: zod_1.z.array(PriceOptionValidationSchema).nonempty({ message: 'At least one price option is required' }),
-        tags: zod_1.z.array(RoomTag).nonempty("At least one tag is required"),
+        // tags: z.array(RoomTag).nonempty("At least one tag is required"),
+        tags: zod_1.z.string({ required_error: 'Room Type Tag is required' }),
         priceHistory: zod_1.z.number().optional(),
     }),
 });

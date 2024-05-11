@@ -103,17 +103,18 @@ const findAllRoomsFromDb = (language) => __awaiter(void 0, void 0, void 0, funct
             } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
             // features: room.features.map((feature) => feature.name[language]),
             // services: room.services.map((service) => service.name[language]),
-            services: room.services.map((service) => ({
-                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-                image: service.image || "Default service image path",
-            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+            // services: room.services.map((service) => ({
+            //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+            //   image: service.image || "Default service image path",
+            // })),
+            images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language], // Localize the currency here
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption.currency[language], // Localize the currency here
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) })));
         return localizedRooms;
     }
@@ -132,17 +133,18 @@ const findAllRoomsForAdmin = (language) => __awaiter(void 0, void 0, void 0, fun
             } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
             // features: room.features.map((feature) => feature.name[language]),
             // services: room.services.map((service) => service.name[language]),
-            services: room.services.map((service) => ({
-                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-                image: service.image || "Default service image path",
-            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+            // services: room.services.map((service) => ({
+            //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+            //   image: service.image || "Default service image path",
+            // })),
+            images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language], // Localize the currency here
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption.currency[language], // Localize the currency here
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) })));
         return localizedRooms;
     }
@@ -164,17 +166,18 @@ const findRegularFromDb = (language) => __awaiter(void 0, void 0, void 0, functi
             } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
             // features: room.features.map((feature) => feature.name[language]),
             // services: room.services.map((service) => service.name[language]),
-            services: room.services.map((service) => ({
-                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-                image: service.image || "Default service image path",
-            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+            // services: room.services.map((service) => ({
+            //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+            //   image: service.image || "Default service image path",
+            // })),
+            images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language], // Localize the currency here
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption.currency[language], // Localize the currency here
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) })));
         return localizedRooms;
     }
@@ -196,17 +199,18 @@ const findPromotionFromDb = (language) => __awaiter(void 0, void 0, void 0, func
             } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
             // features: room.features.map((feature) => feature.name[language]),
             // services: room.services.map((service) => service.name[language]),
-            services: room.services.map((service) => ({
-                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-                image: service.image || "Default service image path",
-            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+            // services: room.services.map((service) => ({
+            //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+            //   image: service.image || "Default service image path",
+            // })),
+            images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language], // Localize the currency here
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption?.currency[language], // Localize the currency here
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) })));
         return localizedRooms;
     }
@@ -227,17 +231,18 @@ const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, voi
             } : undefined, description: room.description[language], maxGuests: room.maxGuests, roomQTY: room.roomQTY, size: room.size, 
             // features: room.features.map((feature) => feature[language]),
             // services: room.services.map((service) => service.name[language]),
-            services: room.services.map((service) => ({
-                name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
-                image: service.image || "Default service image path",
-            })), images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
+            // services: room.services.map((service) => ({
+            //   name: service.name ? service.name[language] || service.name.en : "Service name unavailable",
+            //   image: service.image || "Default service image path",
+            // })),
+            images: room.images, priceOptions: room.priceOptions.map((priceOption) => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language], // Localize the currency here
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption.currency[language], // Localize the currency here
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) });
         return localizedRooms;
     }
@@ -423,12 +428,12 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
             // services: room.services.map((service) => service.name[language]),
             images: room.images, priceOptions: room.priceOptions.map(priceOption => ({
                 price: priceOption.price,
-                currency: priceOption.currency[language],
-                taxesAndCharges: priceOption.taxesAndCharges,
-                breakfast: priceOption.breakfast[language],
-                cancellation: priceOption.cancellation[language],
-                prepayment: priceOption.prepayment[language],
-                refundable: priceOption.refundable,
+                // currency: priceOption.currency[language],
+                // taxesAndCharges: priceOption.taxesAndCharges,
+                // breakfast: priceOption.breakfast[language],
+                // cancellation: priceOption.cancellation[language],
+                // prepayment: priceOption.prepayment[language],
+                // refundable: priceOption.refundable,
             })) });
     });
     return localizedRooms;

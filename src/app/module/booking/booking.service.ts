@@ -171,10 +171,25 @@ const getBookingById = async (id: string) => {
 };
 
 
-const getAllBookings = async () => {
+const getAllBookings = async (language: LanguageKey) => {
   try {
-    const bookings = await BookingModel.find();
-    return bookings;
+    const bookings = await BookingModel.find().populate('roomId', 'title description images priceOptions')
+    .sort({ createdAt: -1 })
+    .lean() as BookingWithRoomDetails[];
+
+    const localizedBookedRooms = bookings.map(booking => {
+      return {
+        ...booking,
+        roomId: {
+          ...booking.roomId,
+          title: booking.roomId.title[language] || booking.roomId.title.en,
+          description: booking.roomId.description[language] || booking.roomId.description.en,
+          // Handle other fields similarly
+        },
+      };
+    });
+
+    return localizedBookedRooms;
   } catch (error:any) {
     // console.error('Error in getAllBookings:', error);
     throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`Error retrieving bookings. ${error.message}` ,

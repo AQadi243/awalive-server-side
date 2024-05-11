@@ -36,12 +36,12 @@ const isAdmin = (...requiredRoles) => {
         }
         catch (error) {
             if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
-                // Handle any error related to JWT validation (expired, malformed, etc.)
-                throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid or expired Login time. Please log in again.');
+                // Handle specific JWT errors
+                throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, `JWT error: ${error.message}`);
             }
             else {
-                // Handle other possible errors
-                throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'You are not authorized to access this resource.');
+                // Handle other errors
+                throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Internal server error.');
             }
         }
     }));
