@@ -38,7 +38,7 @@ const bookingRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 const getSingleBookedRoomController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // console.log(req.body);
     const { id } = req.params;
-    //  console.log(req.user);
+    //  console.log(id);
     const bookedRoom = yield booking_service_1.bookingService.getBookingById(id);
     if (!bookedRoom) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Oops, room not booked or booking not found');
@@ -53,10 +53,14 @@ const getSingleBookedRoomController = (0, catchAsync_1.default)((req, res) => __
     }
 }));
 const getAllBookingRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
+        ? languageParam
+        : 'en';
     // console.log(req.body);
     // const bookingData = req.body;
     //  console.log(req.user);
-    const result = yield booking_service_1.bookingService.getAllBookings();
+    const result = yield booking_service_1.bookingService.getAllBookings(language);
     if (!result) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'OPPS No Room booked');
     }

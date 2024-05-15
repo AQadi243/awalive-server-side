@@ -18,7 +18,7 @@ export type LanguageKey = 'en' | 'ar';
 export type LocalizedString = {
   en: string;
   ar: string;
-  
+  [key: string]: string;
 };
 
 export type PriceOption = {

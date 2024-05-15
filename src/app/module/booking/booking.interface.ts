@@ -1,10 +1,13 @@
 // import mongoose from 'mongoose';
 
 import mongoose from "mongoose";
-import { PriceOption } from "../room/room.interface";
-import { LanguageMap } from "../promotion/promotion.interface";
+import { LocalizedString, PriceOption } from "../room/room.interface";
+// import { LanguageMap } from "../promotion/promotion.interface";
 
 
+// interface LanguageMap {
+//   [key: string]: string; // Use more specific language keys if you have a finite list
+// }
 
 export interface GuestData {
   firstName: string;
@@ -34,11 +37,13 @@ export interface TBookingData {
 
 interface RoomDetailsLocalized {
   _id: mongoose.Types.ObjectId;
-  title: LanguageMap; // Now expecting a simple string after localization
-  description: LanguageMap; // Now expecting a simple string after localization
+  title: LocalizedString; // Now expecting a simple string after localization
+  description: LocalizedString; // Now expecting a simple string after localization
   images: string[];
   priceOptions: PriceOption[];
 }
+
+
 
  export interface BookingWithRoomDetails extends Document {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

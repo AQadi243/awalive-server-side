@@ -13,9 +13,9 @@ const isAdmin_1 = __importDefault(require("../../midleware/isAdmin"));
 const router = express_1.default.Router();
 router.get('/', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), booking_controller_1.createBookingController.getAllBookingRooms);
 router.get('/:userEmail', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin, user_contents_1.USER_ROLE.user), booking_controller_1.createBookingController.getSingleBookedRoom);
-router.get('/:id', booking_controller_1.createBookingController.getSingleBookedRoomController);
-// router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
+router.get('/room/:id', booking_controller_1.createBookingController.getSingleBookedRoomController);
 router.post('/', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin, user_contents_1.USER_ROLE.user), (0, validateRequest_1.validateRequest)(booking_validation_1.BookingDataZodSchema), booking_controller_1.createBookingController.bookingRoom);
+// router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
 // router.put('/:userId', createUserController.updateSingleUser )
 // router.post('/', validateRequest(userValidationSchemaZod), createUserController.createUser )
 // router.delete('/:userId', createUserController.deleteSingleUser)

@@ -170,6 +170,138 @@ const getBookingById = async (id: string) => {
   }
 };
 
+// to cancel bookings
+
+const cancelBookingById = async (id: string ): Promise <BookingWithRoomDetails> => {
+  const session = await mongoose.startSession();
+  
+  try {
+    session.startTransaction();
+    // Update the booking status and fetch the details
+    const updatedBooking = await BookingModel.findByIdAndUpdate(id, {
+      bookingStatus: 'Cancelled'
+    }, { new: true })
+    .session(session)
+    .populate('roomId', 'title description images priceOptions')
+    .lean() as BookingWithRoomDetails; 
+
+    if (!updatedBooking) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Booking not found or could not be updated');
+    }
+
+    // // Localize the room details in the updated booking
+    // const localizedUpdatedBooking = {
+    //   ...updatedBooking,
+    //   roomId: {
+    //     ...updatedBooking.roomId,
+    //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+    //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+    //     // Add other fields if needed
+    //   }
+    // };
+    // Correctly accessing localized title and description using the language key
+    // const localizedUpdatedBooking = {
+    //   ...updatedBooking,
+    //   roomId: {
+    //     ...updatedBooking.roomId,
+    //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+    //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+    //   }
+    // };
+
+
+    await session.commitTransaction();
+    return updatedBooking; // Return the localized booking
+    // return localizedUpdatedBooking; // Return the localized booking
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error Cancelling Booking: ${error.message}`);
+  } finally {
+    session.endSession();
+  }
+};
+
+
+const PaymentUpdateById = async (id: string ): Promise <BookingWithRoomDetails> => {
+  const session = await mongoose.startSession();
+  
+  try {
+    session.startTransaction();
+    // Update the booking status and fetch the details
+    const updatedBooking = await BookingModel.findByIdAndUpdate(id, {
+      paymentStatus: 'Paid'
+    }, { new: true })
+    .session(session)
+    .populate('roomId', 'title description images priceOptions')
+    .lean() as BookingWithRoomDetails; 
+
+    if (!updatedBooking) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Booking not found or could not be updated');
+    }
+
+    // // Localize the room details in the updated booking
+    // const localizedUpdatedBooking = {
+    //   ...updatedBooking,
+    //   roomId: {
+    //     ...updatedBooking.roomId,
+    //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+    //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+    //     // Add other fields if needed
+    //   }
+    // };
+    // Correctly accessing localized title and description using the language key
+    // const localizedUpdatedBooking = {
+    //   ...updatedBooking,
+    //   roomId: {
+    //     ...updatedBooking.roomId,
+    //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+    //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+    //   }
+    // };
+
+
+    await session.commitTransaction();
+    return updatedBooking; // Return the localized booking
+    // return localizedUpdatedBooking; // Return the localized booking
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error Pavement update : ${error.message}`);
+  } finally {
+    session.endSession();
+  }
+};
+
+
+
+
+const getNewBookings = async (language: LanguageKey) => {
+  try {
+    const bookings = await BookingModel.find({ bookingStatus: 'Booked' }).populate('roomId', 'title description images priceOptions')
+    .sort({ createdAt: -1 })
+    .lean() as BookingWithRoomDetails[];
+
+    const localizedBookedRooms = bookings.map(booking => {
+      return {
+        ...booking,
+        roomId: {
+          ...booking.roomId,
+          title: booking.roomId.title[language] || booking.roomId.title.en,
+          description: booking.roomId.description[language] || booking.roomId.description.en,
+          // Handle other fields similarly
+        },
+      };
+    });
+
+    return localizedBookedRooms;
+  } catch (error:any) {
+    
+    // console.error('Error in getAllBookings:', error);
+    throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`Error retrieving bookings. ${error.message}` ,
+    
+    );
+  }
+};
+
 
 const getAllBookings = async (language: LanguageKey) => {
   try {
@@ -365,5 +497,8 @@ export const bookingService = {
   createBooking,
   getBookingById,
   getAllBookings,
+  getNewBookings,
+  cancelBookingById,
+  PaymentUpdateById,
   getBookingsByEmail,
 };

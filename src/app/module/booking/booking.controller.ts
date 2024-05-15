@@ -41,6 +41,74 @@ const getSingleBookedRoomController = catchAsync(async (req: Request, res: Respo
   }
 });
 
+const postSingleBookedRoomCancel = catchAsync(async (req: Request, res: Response) => {
+  // const languageParam = req.query.lang;
+  // const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+  //                  ? languageParam 
+  //                  : 'en';
+  // console.log(req.body);
+  const {id} = req.params;
+  //  console.log(id);
+  const bookedRoom = await bookingService.cancelBookingById(id);
+
+  if (!bookedRoom) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Oops, room not booked or booking not found');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booking retrieved successfully',
+      data: bookedRoom, // Return the booking data
+    });
+  }
+});
+
+// payment 
+
+const postSingleBookingPayment = catchAsync(async (req: Request, res: Response) => {
+  // const languageParam = req.query.lang;
+  // const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+  //                  ? languageParam 
+  //                  : 'en';
+  // console.log(req.body);
+  const {id} = req.params;
+   console.log(id);
+  const bookedRoom = await bookingService.PaymentUpdateById(id);
+
+  if (!bookedRoom) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Oops, room not booked or booking not found');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booking retrieved successfully',
+      data: bookedRoom, // Return the booking data
+    });
+  }
+});
+
+const getAllNewBookingRooms = catchAsync(async (req: Request, res: Response) => {
+  const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                     ? languageParam 
+                     : 'en';
+  // console.log(req.body);
+  // const bookingData = req.body;
+  //  console.log(req.user);
+  const result = await bookingService.getNewBookings(language);
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'OPPS No Room booked');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booked found successfully',
+      data: result,
+    });
+  }
+});
+
 const getAllBookingRooms = catchAsync(async (req: Request, res: Response) => {
   const languageParam = req.query.lang;
     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
@@ -89,6 +157,9 @@ export const createBookingController = {
   bookingRoom,
   getSingleBookedRoomController,
   getAllBookingRooms,
+  getAllNewBookingRooms,
+  postSingleBookedRoomCancel,
+  postSingleBookingPayment,
   getSingleBookedRoom
 
 };

@@ -158,10 +158,15 @@ const getBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error fetching booking: ${error.message}`);
     }
 });
-const getAllBookings = () => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBookings = (language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const bookings = yield booking_model_1.BookingModel.find();
-        return bookings;
+        const bookings = yield booking_model_1.BookingModel.find().populate('roomId', 'title description images priceOptions')
+            .sort({ createdAt: -1 })
+            .lean();
+        const localizedBookedRooms = bookings.map(booking => {
+            return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }) });
+        });
+        return localizedBookedRooms;
     }
     catch (error) {
         // console.error('Error in getAllBookings:', error);
