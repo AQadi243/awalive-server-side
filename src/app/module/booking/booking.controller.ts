@@ -153,6 +153,29 @@ const getSingleBookedRoom = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+const invoice = catchAsync(async (req: Request, res: Response) => {
+  const languageParam = req.query.lang;
+  const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+                   ? languageParam 
+                   : 'en';
+  // console.log(req.body);
+  const {id} = req.params;
+   console.log(id);
+  const bookedRoom = await bookingService.getInvoice(id, language);
+
+  if (!bookedRoom) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Oops, room not booked or booking not found');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booking retrieved successfully',
+      data: bookedRoom, // Return the booking data
+    });
+  }
+});
+
+
 export const createBookingController = {
   bookingRoom,
   getSingleBookedRoomController,
@@ -160,6 +183,7 @@ export const createBookingController = {
   getAllNewBookingRooms,
   postSingleBookedRoomCancel,
   postSingleBookingPayment,
+  invoice,
   getSingleBookedRoom
 
 };

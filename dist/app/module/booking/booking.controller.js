@@ -52,6 +52,70 @@ const getSingleBookedRoomController = (0, catchAsync_1.default)((req, res) => __
         });
     }
 }));
+const postSingleBookedRoomCancel = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // const languageParam = req.query.lang;
+    // const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+    //                  ? languageParam 
+    //                  : 'en';
+    // console.log(req.body);
+    const { id } = req.params;
+    //  console.log(id);
+    const bookedRoom = yield booking_service_1.bookingService.cancelBookingById(id);
+    if (!bookedRoom) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Oops, room not booked or booking not found');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Room booking retrieved successfully',
+            data: bookedRoom, // Return the booking data
+        });
+    }
+}));
+// payment 
+const postSingleBookingPayment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // const languageParam = req.query.lang;
+    // const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
+    //                  ? languageParam 
+    //                  : 'en';
+    // console.log(req.body);
+    const { id } = req.params;
+    console.log(id);
+    const bookedRoom = yield booking_service_1.bookingService.PaymentUpdateById(id);
+    if (!bookedRoom) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Oops, room not booked or booking not found');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Room booking retrieved successfully',
+            data: bookedRoom, // Return the booking data
+        });
+    }
+}));
+const getAllNewBookingRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
+        ? languageParam
+        : 'en';
+    // console.log(req.body);
+    // const bookingData = req.body;
+    //  console.log(req.user);
+    const result = yield booking_service_1.bookingService.getNewBookings(language);
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'OPPS No Room booked');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Room booked found successfully',
+            data: result,
+        });
+    }
+}));
 const getAllBookingRooms = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const languageParam = req.query.lang;
     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
@@ -94,9 +158,34 @@ const getSingleBookedRoom = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         });
     }
 }));
+const invoice = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const languageParam = req.query.lang;
+    const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
+        ? languageParam
+        : 'en';
+    // console.log(req.body);
+    const { id } = req.params;
+    console.log(id);
+    const bookedRoom = yield booking_service_1.bookingService.getInvoice(id, language);
+    if (!bookedRoom) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Oops, room not booked or booking not found');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Room booking retrieved successfully',
+            data: bookedRoom, // Return the booking data
+        });
+    }
+}));
 exports.createBookingController = {
     bookingRoom,
     getSingleBookedRoomController,
     getAllBookingRooms,
+    getAllNewBookingRooms,
+    postSingleBookedRoomCancel,
+    postSingleBookingPayment,
+    invoice,
     getSingleBookedRoom
 };

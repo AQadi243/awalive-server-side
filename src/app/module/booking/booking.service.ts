@@ -11,6 +11,7 @@ import httpStatus from 'http-status';
 import { BookingModel } from './booking.model';
 import { sendEmail } from '../../utils/sendEmail';
 import { LanguageKey, TRoom } from '../room/room.interface';
+import { differenceInCalendarDays } from 'date-fns';
 // import { RoomModel } from '../room/room.model';
 
 
@@ -400,6 +401,45 @@ const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
   }
 };
 
+const getInvoice = async (id: string, language: LanguageKey) => {
+  try {
+    // Correctly use findById with just the id
+    const booking = await BookingModel.findById(id)
+      .populate('roomId', 'title description images priceOptions')
+      .populate('userId') // Make sure to specify which fields you want from the User model if needed
+      .lean() as BookingWithRoomDetails;
+
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    const VAT_RATE = 0.15; // 15% VAT
+    const daysStayed = differenceInCalendarDays(new Date(booking.checkOut), new Date(booking.checkIn));
+    const pricePerDay = booking.roomId.priceOptions[0].price;
+    const subtotal = daysStayed * pricePerDay;
+    const vat = subtotal * VAT_RATE;
+    const total = subtotal + vat;
+
+    return {
+      ...booking,
+      roomId: {
+        ...booking.roomId,
+        title: booking.roomId.title[language] || booking.roomId.title.en,
+        description: booking.roomId.description[language] || booking.roomId.description.en,
+      },
+      invoiceDetails: {
+        daysStayed,
+        subtotal,
+        vat,
+        total
+      }
+    };
+  } catch (error: any) {
+    console.error('Error in getInvoice:', error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error retrieving booking invoice. ${error.message}`);
+  }
+};
+
 
 
 // const getBookingByEmail = async (email: string, language: LanguageKey) => {
@@ -500,5 +540,6 @@ export const bookingService = {
   getNewBookings,
   cancelBookingById,
   PaymentUpdateById,
+  getInvoice,
   getBookingsByEmail,
 };

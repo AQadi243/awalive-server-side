@@ -24,6 +24,7 @@ const http_status_1 = __importDefault(require("http-status"));
 // import { LanguageKey } from '../room/room.interface';
 const booking_model_1 = require("./booking.model");
 const sendEmail_1 = require("../../utils/sendEmail");
+const date_fns_1 = require("date-fns");
 // import { RoomModel } from '../room/room.model';
 const generateRandomBookingNumber = () => {
     // Generates a random number between 100000000 and 999999999
@@ -158,6 +159,112 @@ const getBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error fetching booking: ${error.message}`);
     }
 });
+// to cancel bookings
+const cancelBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        // Update the booking status and fetch the details
+        const updatedBooking = yield booking_model_1.BookingModel.findByIdAndUpdate(id, {
+            bookingStatus: 'Cancelled'
+        }, { new: true })
+            .session(session)
+            .populate('roomId', 'title description images priceOptions')
+            .lean();
+        if (!updatedBooking) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Booking not found or could not be updated');
+        }
+        // // Localize the room details in the updated booking
+        // const localizedUpdatedBooking = {
+        //   ...updatedBooking,
+        //   roomId: {
+        //     ...updatedBooking.roomId,
+        //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+        //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+        //     // Add other fields if needed
+        //   }
+        // };
+        // Correctly accessing localized title and description using the language key
+        // const localizedUpdatedBooking = {
+        //   ...updatedBooking,
+        //   roomId: {
+        //     ...updatedBooking.roomId,
+        //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+        //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+        //   }
+        // };
+        yield session.commitTransaction();
+        return updatedBooking; // Return the localized booking
+        // return localizedUpdatedBooking; // Return the localized booking
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error Cancelling Booking: ${error.message}`);
+    }
+    finally {
+        session.endSession();
+    }
+});
+const PaymentUpdateById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        // Update the booking status and fetch the details
+        const updatedBooking = yield booking_model_1.BookingModel.findByIdAndUpdate(id, {
+            paymentStatus: 'Paid'
+        }, { new: true })
+            .session(session)
+            .populate('roomId', 'title description images priceOptions')
+            .lean();
+        if (!updatedBooking) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Booking not found or could not be updated');
+        }
+        // // Localize the room details in the updated booking
+        // const localizedUpdatedBooking = {
+        //   ...updatedBooking,
+        //   roomId: {
+        //     ...updatedBooking.roomId,
+        //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+        //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+        //     // Add other fields if needed
+        //   }
+        // };
+        // Correctly accessing localized title and description using the language key
+        // const localizedUpdatedBooking = {
+        //   ...updatedBooking,
+        //   roomId: {
+        //     ...updatedBooking.roomId,
+        //     title: updatedBooking.roomId.title[language] || updatedBooking.roomId.title.en,
+        //     description: updatedBooking.roomId.description[language] || updatedBooking.roomId.description.en,
+        //   }
+        // };
+        yield session.commitTransaction();
+        return updatedBooking; // Return the localized booking
+        // return localizedUpdatedBooking; // Return the localized booking
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error Pavement update : ${error.message}`);
+    }
+    finally {
+        session.endSession();
+    }
+});
+const getNewBookings = (language) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const bookings = yield booking_model_1.BookingModel.find({ bookingStatus: 'Booked' }).populate('roomId', 'title description images priceOptions')
+            .sort({ createdAt: -1 })
+            .lean();
+        const localizedBookedRooms = bookings.map(booking => {
+            return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }) });
+        });
+        return localizedBookedRooms;
+    }
+    catch (error) {
+        // console.error('Error in getAllBookings:', error);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error retrieving bookings. ${error.message}`);
+    }
+});
 const getAllBookings = (language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const bookings = yield booking_model_1.BookingModel.find().populate('roomId', 'title description images priceOptions')
@@ -219,6 +326,34 @@ const getBookingsByEmail = (email, language) => __awaiter(void 0, void 0, void 0
     }
     finally {
         session.endSession();
+    }
+});
+const getInvoice = (id, language) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Correctly use findById with just the id
+        const booking = yield booking_model_1.BookingModel.findById(id)
+            .populate('roomId', 'title description images priceOptions')
+            .populate('userId') // Make sure to specify which fields you want from the User model if needed
+            .lean();
+        if (!booking) {
+            throw new Error("Booking not found");
+        }
+        const VAT_RATE = 0.15; // 15% VAT
+        const daysStayed = (0, date_fns_1.differenceInCalendarDays)(new Date(booking.checkOut), new Date(booking.checkIn));
+        const pricePerDay = booking.roomId.priceOptions[0].price;
+        const subtotal = daysStayed * pricePerDay;
+        const vat = subtotal * VAT_RATE;
+        const total = subtotal + vat;
+        return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }), invoiceDetails: {
+                daysStayed,
+                subtotal,
+                vat,
+                total
+            } });
+    }
+    catch (error) {
+        console.error('Error in getInvoice:', error);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error retrieving booking invoice. ${error.message}`);
     }
 });
 // const getBookingByEmail = async (email: string, language: LanguageKey) => {
@@ -307,5 +442,9 @@ exports.bookingService = {
     createBooking,
     getBookingById,
     getAllBookings,
+    getNewBookings,
+    cancelBookingById,
+    PaymentUpdateById,
+    getInvoice,
     getBookingsByEmail,
 };
