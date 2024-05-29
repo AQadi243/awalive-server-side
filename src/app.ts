@@ -30,7 +30,7 @@ app.use(cookieParser());
 app.use('/api', router )
 
 app.get('/', (req: Request , res: Response) => {
-  res.send('Hotel Awalive is running')
+  res.send('Awaliv Hotel is running')
 })
 
 app.use(notFound)

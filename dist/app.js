@@ -28,7 +28,7 @@ app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use('/api', Routers_1.default);
 app.get('/', (req, res) => {
-    res.send('Hotel Awalive is running');
+    res.send('Awaliv Hotel is running');
 });
 app.use(noteFound_1.default);
 app.use(globalErrorHandler_1.default);
