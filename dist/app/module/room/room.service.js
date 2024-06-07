@@ -301,6 +301,55 @@ const deleteRoomById = (roomId) => __awaiter(void 0, void 0, void 0, function* (
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to delete the room.');
     }
 });
+const reactivateRoomById = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        // Check if the room exists and is currently soft deleted
+        const existingRoom = yield room_model_1.RoomModel.findOne({ _id: roomId, isDeleted: true }).session(session);
+        if (!existingRoom) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found or not active');
+        }
+        // Reactivate the room by updating isDeleted and isActive
+        const updatedRoom = yield room_model_1.RoomModel.findByIdAndUpdate(roomId, { isDeleted: false, isActive: true }, { new: true, session: session });
+        yield session.commitTransaction();
+        yield session.endSession();
+        return updatedRoom; // Return the updated room for confirmation
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        if (err instanceof AppError_1.default) {
+            throw err;
+        }
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to reactivate the room.');
+    }
+});
+// delete permannet room 
+const deleteRoomPermanently = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        // Check if the room exists
+        const existingRoom = yield room_model_1.RoomModel.findById(roomId).session(session);
+        if (!existingRoom) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        }
+        // Permanently delete the room
+        yield room_model_1.RoomModel.findByIdAndDelete(roomId).session(session);
+        yield session.commitTransaction();
+        yield session.endSession();
+        return { message: 'Room deleted permanently' };
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        if (err instanceof AppError_1.default) {
+            throw err;
+        }
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to delete the room permanently.');
+    }
+});
 // const searchService = async (
 //   categoryId: string,
 //   // maxGuests: MaxGuestsType,
@@ -447,7 +496,9 @@ exports.roomService = {
     findPromotionFromDb,
     updateRoomById,
     deleteRoomById,
+    reactivateRoomById,
     findAllRoomsForAdmin,
+    deleteRoomPermanently,
     // searchService,
     checkAllRoomAvailability,
 };

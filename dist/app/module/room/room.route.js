@@ -19,6 +19,8 @@ router.get('/admin/room', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin
 router.get('/regular', room_conroller_1.createRoomController.findRegularRooms);
 router.get('/promotion', room_conroller_1.createRoomController.findPromotionRooms);
 router.get('/:id', room_conroller_1.createRoomController.singleRoomById);
+router.put('/:id/reactivate', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.reActiveRoom);
 router.put('/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.updateSingleRoom);
 router.delete('/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.deleteSingleRoom);
+router.delete('/:id/permanent', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), room_conroller_1.createRoomController.permanentDeleteRoom);
 exports.RoomRoute = router;

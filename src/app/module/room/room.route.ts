@@ -16,8 +16,10 @@ router.get('/admin/room', isAdmin(USER_ROLE.admin),  createRoomController.AdminR
 router.get('/regular',  createRoomController.findRegularRooms )
 router.get('/promotion',  createRoomController.findPromotionRooms )
 router.get('/:id',  createRoomController.singleRoomById )
+router.put('/:id/reactivate', isAdmin(USER_ROLE.admin), createRoomController.reActiveRoom)
 router.put('/:id', isAdmin(USER_ROLE.admin), createRoomController.updateSingleRoom)
 router.delete('/:id', isAdmin(USER_ROLE.admin), createRoomController.deleteSingleRoom)
+router.delete('/:id/permanent', isAdmin(USER_ROLE.admin), createRoomController.permanentDeleteRoom)
 
 
 export const RoomRoute = router

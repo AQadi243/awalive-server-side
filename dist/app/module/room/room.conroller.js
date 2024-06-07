@@ -165,6 +165,40 @@ const deleteSingleRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 
         });
     }
 }));
+// re active room 
+const reActiveRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // getting user id to find the exect user and the body of update info
+    const roomId = req.params.id;
+    const result = yield room_service_1.roomService.reactivateRoomById(roomId);
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Reactive room failed ');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Update Successful',
+            data: result,
+        });
+    }
+}));
+// Delete room permanent
+const permanentDeleteRoom = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // getting user id to find the exect user and the body of update info
+    const roomId = req.params.id;
+    const result = yield room_service_1.roomService.deleteRoomPermanently(roomId);
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Deleting room failed ');
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: 'Update Successful',
+            data: result,
+        });
+    }
+}));
 // const searchRoomController = catchAsync(async (req: Request, res: Response) => {
 //   // getting user id to find the exect user and the body of update info
 //   const categoryId = req.query.categoryId as string;
@@ -378,6 +412,8 @@ exports.createRoomController = {
     findPromotionRooms,
     updateSingleRoom,
     deleteSingleRoom,
+    reActiveRoom,
+    permanentDeleteRoom,
     AdminRooms,
     // searchRoomController,
     availableRoomController

@@ -171,6 +171,51 @@ const deleteSingleRoom = catchAsync(async (req: Request, res: Response) => {
     });
   }
 });
+
+// re active room 
+const reActiveRoom = catchAsync(async (req: Request, res: Response) => {
+  // getting user id to find the exect user and the body of update info
+
+  const roomId = req.params.id;
+
+  const result = await roomService.reactivateRoomById(roomId);
+  if (!result) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Reactive room failed ',
+    );
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Update Successful',
+      data: result,
+    });
+  }
+});
+
+// Delete room permanent
+const permanentDeleteRoom = catchAsync(async (req: Request, res: Response) => {
+  // getting user id to find the exect user and the body of update info
+
+  const roomId = req.params.id;
+
+  const result = await roomService.deleteRoomPermanently(roomId);
+  if (!result) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Deleting room failed ',
+    );
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Update Successful',
+      data: result,
+    });
+  }
+});
+
 // const searchRoomController = catchAsync(async (req: Request, res: Response) => {
 //   // getting user id to find the exect user and the body of update info
 
@@ -423,6 +468,8 @@ export const createRoomController = {
   findPromotionRooms,
   updateSingleRoom,
   deleteSingleRoom,
+  reActiveRoom,
+  permanentDeleteRoom,
   AdminRooms,
   // searchRoomController,
   availableRoomController

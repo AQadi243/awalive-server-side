@@ -390,6 +390,72 @@ const deleteRoomById = async (roomId: string) => {
   }
 };
 
+const reactivateRoomById = async (roomId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Check if the room exists and is currently soft deleted
+    const existingRoom = await RoomModel.findOne({ _id: roomId, isDeleted: true }).session(session);
+    if (!existingRoom) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Room not found or not active');
+    }
+
+    // Reactivate the room by updating isDeleted and isActive
+    const updatedRoom = await RoomModel.findByIdAndUpdate(
+      roomId,
+      { isDeleted: false, isActive: true },
+      { new: true, session: session },
+    );
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return updatedRoom; // Return the updated room for confirmation
+  } catch (err) {
+    await session.abortTransaction();
+    await session.endSession();
+
+    if (err instanceof AppError) {
+      throw err;
+    }
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to reactivate the room.',
+    );
+  }
+};
+
+// delete permannet room 
+const deleteRoomPermanently = async (roomId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Check if the room exists
+    const existingRoom = await RoomModel.findById(roomId).session(session);
+    if (!existingRoom) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    }
+
+    // Permanently delete the room
+    await RoomModel.findByIdAndDelete(roomId).session(session);
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return { message: 'Room deleted permanently' };
+  } catch (err) {
+    await session.abortTransaction();
+    await session.endSession();
+
+    if (err instanceof AppError) {
+      throw err;
+    }
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to delete the room permanently.',
+    );
+  }
+};
 // const searchService = async (
 //   categoryId: string,
 //   // maxGuests: MaxGuestsType,
@@ -572,7 +638,9 @@ export const roomService = {
   findPromotionFromDb,
   updateRoomById,
   deleteRoomById,
+  reactivateRoomById,
   findAllRoomsForAdmin,
+  deleteRoomPermanently,
   // searchService,
   checkAllRoomAvailability,
 };
