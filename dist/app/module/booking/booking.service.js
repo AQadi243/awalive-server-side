@@ -265,31 +265,36 @@ const getNewBookings = (language) => __awaiter(void 0, void 0, void 0, function*
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error retrieving bookings. ${error.message}`);
     }
 });
+// get all booked rooms 
 const getAllBookings = (language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const bookings = yield booking_model_1.BookingModel.find().populate('roomId', 'title description images priceOptions')
+        const bookings = yield booking_model_1.BookingModel.find()
+            .populate('roomId', 'title description images priceOptions')
             .sort({ createdAt: -1 })
             .lean();
         const localizedBookedRooms = bookings.map(booking => {
-            return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }) });
+            var _a;
+            // Check if roomId exists and has the necessary properties
+            if (booking.roomId && booking.roomId.title && booking.roomId.description) {
+                return Object.assign(Object.assign({}, booking), { roomId: Object.assign(Object.assign({}, booking.roomId), { title: booking.roomId.title[language] || booking.roomId.title.en, description: booking.roomId.description[language] || booking.roomId.description.en }) });
+            }
+            else {
+                // Handle case where roomId or its properties do not exist
+                return Object.assign(Object.assign({}, booking), { roomId: {
+                        _id: ((_a = booking.roomId) === null || _a === void 0 ? void 0 : _a._id) || null,
+                        title: `Room data not available (${language})`,
+                        description: `Room data not available (${language})`,
+                        images: [],
+                        priceOptions: [],
+                    } });
+            }
         });
         return localizedBookedRooms;
     }
     catch (error) {
-        // console.error('Error in getAllBookings:', error);
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error retrieving bookings. ${error.message}`);
     }
 });
-// const getBookingsByEmail = async (email: string, language: string)=>{
-//   try {
-//     const bookedRoom = await BookingModel.find({ userId: email });
-//     if (!bookedRoom) {
-//       throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`No Booking Found.`)
-//     }
-//     const populateRoomDetails = await RoomModel.findById(bookedRoom.).lean()
-//   } catch (error) {
-//   }
-// }
 const getBookingsByEmail = (email, language) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession(); // Start a session for transaction
     session.startTransaction(); // Start the transaction

@@ -303,45 +303,49 @@ const getNewBookings = async (language: LanguageKey) => {
   }
 };
 
-
+// get all booked rooms 
 const getAllBookings = async (language: LanguageKey) => {
   try {
-    const bookings = await BookingModel.find().populate('roomId', 'title description images priceOptions')
-    .sort({ createdAt: -1 })
-    .lean() as BookingWithRoomDetails[];
+    const bookings = await BookingModel.find()
+      .populate('roomId', 'title description images priceOptions')
+      .sort({ createdAt: -1 })
+      .lean() as BookingWithRoomDetails[];
 
     const localizedBookedRooms = bookings.map(booking => {
-      return {
-        ...booking,
-        roomId: {
-          ...booking.roomId,
-          title: booking.roomId.title[language] || booking.roomId.title.en,
-          description: booking.roomId.description[language] || booking.roomId.description.en,
-          // Handle other fields similarly
-        },
-      };
+      // Check if roomId exists and has the necessary properties
+      if (booking.roomId && booking.roomId.title && booking.roomId.description) {
+        return {
+          ...booking,
+          roomId: {
+            ...booking.roomId,
+            title: booking.roomId.title[language] || booking.roomId.title.en,
+            description: booking.roomId.description[language] || booking.roomId.description.en,
+            // Handle other fields similarly
+          },
+        };
+      } else {
+        // Handle case where roomId or its properties do not exist
+        return {
+          ...booking,
+          roomId: {
+            _id: booking.roomId?._id || null,
+            title: `Room data not available (${language})`,
+            description: `Room data not available (${language})`,
+            images: [],
+            priceOptions: [],
+          },
+        };
+      }
     });
 
     return localizedBookedRooms;
-  } catch (error:any) {
-    // console.error('Error in getAllBookings:', error);
-    throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`Error retrieving bookings. ${error.message}` ,
-    );
+  } catch (error: any) {
+    
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error retrieving bookings. ${error.message}`);
   }
 };
 
-// const getBookingsByEmail = async (email: string, language: string)=>{
-//   try {
-//     const bookedRoom = await BookingModel.find({ userId: email });
-    
-//     if (!bookedRoom) {
-//       throw new AppError( httpStatus.INTERNAL_SERVER_ERROR,`No Booking Found.`)
-//     }
-//     const populateRoomDetails = await RoomModel.findById(bookedRoom.).lean()
-//   } catch (error) {
-    
-//   }
-// }
+
 const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
   const session = await mongoose.startSession(); // Start a session for transaction
   session.startTransaction(); // Start the transaction
