@@ -346,10 +346,9 @@ const getAllBookings = async (language: LanguageKey) => {
 };
 
 
-const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
+const getBookingsByEmail = async (email: string, language: string) => {
   const session = await mongoose.startSession(); // Start a session for transaction
   session.startTransaction(); // Start the transaction
-
 
   try {
     const bookedRooms = await BookingModel.find({ userId: email })
@@ -382,28 +381,103 @@ const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
 
     // If all updates succeed, commit the transaction
     await session.commitTransaction();
+    session.endSession();
 
     const localizedBookedRooms = bookedRooms.map(booking => {
-      return {
-        ...booking,
-        roomId: {
-          ...booking.roomId,
-          title: booking.roomId.title[language] || booking.roomId.title.en,
-          description: booking.roomId.description[language] || booking.roomId.description.en,
-          // Handle other fields similarly
-        },
-      };
+      // Check if roomId exists and has the necessary properties
+      if (booking.roomId && booking.roomId.title && booking.roomId.description) {
+        return {
+          ...booking,
+          roomId: {
+            ...booking.roomId,
+            title: booking.roomId.title[language] || booking.roomId.title.en,
+            description: booking.roomId.description[language] || booking.roomId.description.en,
+            // Handle other fields similarly
+          },
+        };
+      } else {
+        // Handle case where roomId or its properties do not exist
+        return {
+          ...booking,
+          roomId: {
+            _id: booking.roomId?._id || null,
+            title: `Room data not available (${language})`,
+            description: `Room data not available (${language})`,
+            images: [],
+            priceOptions: [],
+          },
+        };
+      }
     });
 
     return localizedBookedRooms;
-  } catch (error:any) {
+  } catch (error: any) {
     // If an error occurs, abort the transaction
-    await session.abortTransaction();
-    throw new AppError(httpStatus.NOT_FOUND, `Error updating bookings: ${error.message}`);
-  } finally {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     session.endSession();
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error updating bookings: ${error.message}`);
   }
 };
+// const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
+//   const session = await mongoose.startSession(); // Start a session for transaction
+//   session.startTransaction(); // Start the transaction
+
+
+//   try {
+//     const bookedRooms = await BookingModel.find({ userId: email })
+//       .populate('roomId', 'title description images priceOptions')
+//       .sort({ createdAt: -1 })
+//       .lean() as BookingWithRoomDetails[];
+
+//     if (bookedRooms.length === 0) {
+//       throw new AppError(httpStatus.NOT_FOUND, `No Booking Found for ${email}`);
+//     }
+
+//     const updates: any[] = []; // Array to hold update promises
+
+//     bookedRooms.forEach(booking => {
+//       // Check if booking status should be updated to 'completed'
+//       if (new Date(booking.checkOut).getTime() < Date.now() && booking.bookingStatus !== 'completed') {
+//         // Push the update promise into the updates array
+//         updates.push(
+//           BookingModel.updateOne(
+//             { _id: booking._id },
+//             { $set: { bookingStatus: 'completed' } },
+//             { session } // Use session for transaction
+//           )
+//         );
+//       }
+//     });
+
+//     // Wait for all updates to complete
+//     await Promise.all(updates);
+
+//     // If all updates succeed, commit the transaction
+//     await session.commitTransaction();
+
+//     const localizedBookedRooms = bookedRooms.map(booking => {
+//       return {
+//         ...booking,
+//         roomId: {
+//           ...booking.roomId,
+//           title: booking.roomId.title[language] || booking.roomId.title.en,
+//           description: booking.roomId.description[language] || booking.roomId.description.en,
+//           // Handle other fields similarly
+//         },
+//       };
+//     });
+
+//     return localizedBookedRooms;
+//   } catch (error:any) {
+//     // If an error occurs, abort the transaction
+//     await session.abortTransaction();
+//     throw new AppError(httpStatus.NOT_FOUND, `Error updating bookings: ${error.message}`);
+//   } finally {
+//     session.endSession();
+//   }
+// };
 
 // delete single booking 
 const deleteBookingById = async (id: string): Promise<void> => {
