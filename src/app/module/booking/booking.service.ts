@@ -405,6 +405,19 @@ const getBookingsByEmail = async (email: string, language: LanguageKey ) => {
   }
 };
 
+// delete single booking 
+const deleteBookingById = async (id: string): Promise<void> => {
+  try {
+    const booking = await BookingModel.findOneAndDelete({ _id: id });
+
+    if (!booking) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Booking not found');
+    }
+  } catch (error: any) {
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error deleting booking. ${error.message}`);
+  }
+};
+
 const getInvoice = async (id: string, language: LanguageKey) => {
   try {
     // Correctly use findById with just the id
@@ -544,6 +557,7 @@ export const bookingService = {
   getNewBookings,
   cancelBookingById,
   PaymentUpdateById,
+  deleteBookingById,
   getInvoice,
   getBookingsByEmail,
 };

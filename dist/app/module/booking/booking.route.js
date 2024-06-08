@@ -18,6 +18,7 @@ router.get('/invoice/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admi
 router.patch('/cancelBooking/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), booking_controller_1.createBookingController.postSingleBookedRoomCancel);
 router.patch('/markAsPaid/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), booking_controller_1.createBookingController.postSingleBookingPayment);
 router.get('/room/:id', booking_controller_1.createBookingController.getSingleBookedRoomController);
+router.delete('/:id', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin), booking_controller_1.createBookingController.deleteBookingController);
 router.post('/', (0, isAdmin_1.default)(user_contents_1.USER_ROLE.admin, user_contents_1.USER_ROLE.user), (0, validateRequest_1.validateRequest)(booking_validation_1.BookingDataZodSchema), booking_controller_1.createBookingController.bookingRoom);
 // router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
 // router.put('/:userId', createUserController.updateSingleUser )

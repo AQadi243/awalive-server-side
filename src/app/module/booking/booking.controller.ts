@@ -153,6 +153,20 @@ const getSingleBookedRoom = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+// delete booking by id 
+const deleteBookingController  = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  
+  const result = await bookingService.deleteBookingById(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Room booked found successfully',
+      data: result,
+    });
+  
+});
+
 const invoice = catchAsync(async (req: Request, res: Response) => {
   const languageParam = req.query.lang;
   const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar')) 
@@ -183,6 +197,7 @@ export const createBookingController = {
   getAllNewBookingRooms,
   postSingleBookedRoomCancel,
   postSingleBookingPayment,
+  deleteBookingController,
   invoice,
   getSingleBookedRoom
 

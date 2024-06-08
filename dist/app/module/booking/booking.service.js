@@ -333,6 +333,18 @@ const getBookingsByEmail = (email, language) => __awaiter(void 0, void 0, void 0
         session.endSession();
     }
 });
+// delete single booking 
+const deleteBookingById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const booking = yield booking_model_1.BookingModel.findOneAndDelete({ _id: id });
+        if (!booking) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Booking not found');
+        }
+    }
+    catch (error) {
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Error deleting booking. ${error.message}`);
+    }
+});
 const getInvoice = (id, language) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Correctly use findById with just the id
@@ -450,6 +462,7 @@ exports.bookingService = {
     getNewBookings,
     cancelBookingById,
     PaymentUpdateById,
+    deleteBookingById,
     getInvoice,
     getBookingsByEmail,
 };

@@ -158,6 +158,17 @@ const getSingleBookedRoom = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         });
     }
 }));
+// delete booking by id 
+const deleteBookingController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield booking_service_1.bookingService.deleteBookingById(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Room booked found successfully',
+        data: result,
+    });
+}));
 const invoice = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const languageParam = req.query.lang;
     const language = (typeof languageParam === 'string' && (languageParam === 'en' || languageParam === 'ar'))
@@ -186,6 +197,7 @@ exports.createBookingController = {
     getAllNewBookingRooms,
     postSingleBookedRoomCancel,
     postSingleBookingPayment,
+    deleteBookingController,
     invoice,
     getSingleBookedRoom
 };

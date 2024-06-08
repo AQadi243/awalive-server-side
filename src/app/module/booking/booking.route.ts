@@ -15,6 +15,7 @@ router.get('/invoice/:id',isAdmin(USER_ROLE.admin), createBookingController.invo
 router.patch('/cancelBooking/:id', isAdmin( USER_ROLE.admin), createBookingController.postSingleBookedRoomCancel )
 router.patch('/markAsPaid/:id', isAdmin( USER_ROLE.admin), createBookingController.postSingleBookingPayment )
 router.get('/room/:id', createBookingController.getSingleBookedRoomController )
+router.delete('/:id', isAdmin( USER_ROLE.admin),createBookingController.deleteBookingController)
 router.post('/', isAdmin( USER_ROLE.admin, USER_ROLE.user),  validateRequest(BookingDataZodSchema), createBookingController.bookingRoom)
 // router.post('/', isAdmin(USER_ROLE.admin ,USER_ROLE.user), validateRequest(bookingValidationSchema), createBookingController.bookingRoom)
 // router.put('/:userId', createUserController.updateSingleUser )
