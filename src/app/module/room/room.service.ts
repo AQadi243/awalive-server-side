@@ -321,6 +321,24 @@ const findSingleRoomFromDb = async (roomId: string, language: LanguageKey) => {
   }
 };
 
+const findSingleRoomForUpdate = async (roomId: string,) => {
+  try {
+    const room = await RoomModel.findById(roomId).lean();
+    if (!room) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    }
+
+    
+
+    return room;
+  } catch (err: any) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,`Failed to retrieve the room.${err.message} `,);
+  }
+};
+
 const updateRoomById = async (roomId: string, updateData: Partial<TRoom>) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -335,7 +353,7 @@ const updateRoomById = async (roomId: string, updateData: Partial<TRoom>) => {
     const updatedRoom = await RoomModel.findByIdAndUpdate(
       roomId,
       { $set: updateData },
-      { new: true, session: session }, // 'new: true' returns the updated document
+      { new: true, session: session } // 'new: true' returns the updated document
     );
 
     await session.commitTransaction();
@@ -641,6 +659,7 @@ export const roomService = {
   reactivateRoomById,
   findAllRoomsForAdmin,
   deleteRoomPermanently,
+  findSingleRoomForUpdate,
   // searchService,
   checkAllRoomAvailability,
 };

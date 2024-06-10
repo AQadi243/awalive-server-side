@@ -129,9 +129,23 @@ const singleRoomById = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-const updateSingleRoom = catchAsync(async (req: Request, res: Response) => {
-  // getting user id to find the exect user and the body of update info
+const singleRoomByForUpdate = catchAsync(async (req: Request, res: Response) => {
+  const roomId = req.params.id;
 
+  const result = await roomService.findSingleRoomForUpdate(roomId);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Room is not found');
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Single room found Successfully',
+      data: result,
+    });
+  }
+});
+
+const updateSingleRoom = catchAsync(async (req: Request, res: Response) => {
   const roomId = req.params.id;
   const updateInfo = req.body;
 
@@ -139,7 +153,7 @@ const updateSingleRoom = catchAsync(async (req: Request, res: Response) => {
   if (!result) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'Invalid room Id or Update Information',
+      'Invalid room ID or Update Information',
     );
   } else {
     sendResponse(res, {
@@ -471,6 +485,7 @@ export const createRoomController = {
   reActiveRoom,
   permanentDeleteRoom,
   AdminRooms,
+  singleRoomByForUpdate,
   // searchRoomController,
   availableRoomController
 };

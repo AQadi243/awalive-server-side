@@ -253,6 +253,21 @@ const findSingleRoomFromDb = (roomId, language) => __awaiter(void 0, void 0, voi
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
     }
 });
+const findSingleRoomForUpdate = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const room = yield room_model_1.RoomModel.findById(roomId).lean();
+        if (!room) {
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
+        }
+        return room;
+    }
+    catch (err) {
+        if (err instanceof AppError_1.default) {
+            throw err;
+        }
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, `Failed to retrieve the room.${err.message} `);
+    }
+});
 const updateRoomById = (roomId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
@@ -263,7 +278,8 @@ const updateRoomById = (roomId, updateData) => __awaiter(void 0, void 0, void 0,
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Room not found');
         }
         // Update the room
-        const updatedRoom = yield room_model_1.RoomModel.findByIdAndUpdate(roomId, { $set: updateData }, { new: true, session: session });
+        const updatedRoom = yield room_model_1.RoomModel.findByIdAndUpdate(roomId, { $set: updateData }, { new: true, session: session } // 'new: true' returns the updated document
+        );
         yield session.commitTransaction();
         yield session.endSession();
         return updatedRoom;
@@ -499,6 +515,7 @@ exports.roomService = {
     reactivateRoomById,
     findAllRoomsForAdmin,
     deleteRoomPermanently,
+    findSingleRoomForUpdate,
     // searchService,
     checkAllRoomAvailability,
 };
