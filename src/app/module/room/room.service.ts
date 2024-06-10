@@ -540,6 +540,9 @@ const checkAllRoomAvailability = async (
 
   const availableRooms = await RoomModel.aggregate([
     {
+      $match: { isDeleted: false } // Ensure we only consider rooms that are not deleted
+    },
+    {
       $lookup: {
         from: 'bookings',
         let: { roomId: '$_id' },
@@ -605,7 +608,7 @@ if (sizeOrder === 'lowToHigh' || sizeOrder === 'highToLow') {
 }
   
   const roomsDetails = await RoomModel
-    .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests }})
+    .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests }, isDeleted: false})
     .sort(sortOrderCondition)
     .lean();
   // Step 2: Retrieve full room details for the available rooms

@@ -416,6 +416,9 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
     //  const categoryCondition = categoryId ? { type: new mongoose.Types.ObjectId(categoryId) } : {};
     const availableRooms = yield room_model_1.RoomModel.aggregate([
         {
+            $match: { isDeleted: false } // Ensure we only consider rooms that are not deleted
+        },
+        {
             $lookup: {
                 from: 'bookings',
                 let: { roomId: '$_id' },
@@ -478,7 +481,7 @@ const checkAllRoomAvailability = (checkInDateStr, checkOutDateStr, sortOrder, la
         sortOrderCondition['size'] = sizeOrder === 'lowToHigh' ? 1 : -1;
     }
     const roomsDetails = yield room_model_1.RoomModel
-        .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests } })
+        .find({ _id: { $in: roomIds }, maxGuests: { $gte: maxGuests }, isDeleted: false })
         .sort(sortOrderCondition)
         .lean();
     // Step 2: Retrieve full room details for the available rooms
